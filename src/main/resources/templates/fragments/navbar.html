@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<nav th:fragment="navbar" class="portal-navbar">
+    <div class="container-fluid px-3 d-flex align-items-center justify-content-between">
+        <!-- Brand -->
+        <a class="portal-brand" th:href="@{/}">
+            <div class="brand-icon-box">
+                <i class="bi bi-mortarboard-fill"></i>
+            </div>
+            <div>
+                <span class="d-none d-sm-inline">Smart Backlog Portal</span>
+                <span class="d-inline d-sm-none">SBCP</span>
+            </div>
+        </a>
+
+        <!-- Right Side Nav -->
+        <div class="d-flex align-items-center gap-3">
+            <!-- Notifications Icon -->
+            <a th:href="@{/notifications}" class="notification-btn text-decoration-none" title="Notifications">
+                <i class="bi bi-bell-fill"></i>
+                <span th:if="${unreadNotifications != null and unreadNotifications > 0}" 
+                      class="notification-badge" 
+                      th:text="${unreadNotifications}">1</span>
+            </a>
+
+            <!-- User Info & Role -->
+            <div class="d-none d-md-flex flex-column text-end" th:if="${currentUser != null}">
+                <span class="text-white fw-semibold small" th:text="${currentUser.fullName}">User Full Name</span>
+                <span class="text-light opacity-75" style="font-size: 0.72rem;" th:text="${currentUser.username}">username</span>
+            </div>
+
+            <!-- Role Badge -->
+            <span th:if="${currentUser != null}" 
+                  class="role-pill"
+                  th:classappend="${
+                      currentUser.role.name() == 'ROLE_ADMIN' ? 'role-pill-admin' :
+                      (currentUser.role.name() == 'ROLE_HOD' ? 'role-pill-hod' :
+                      (currentUser.role.name() == 'ROLE_STUDENT' ? 'role-pill-student' :
+                      (currentUser.role.name() == 'ROLE_PARENT' ? 'role-pill-parent' : 'role-pill-tutor')))
+                  }"
+                  th:text="${currentUser.role.displayName}">Role</span>
+
+            <!-- Logout Button -->
+            <form th:action="@{/logout}" method="post" class="d-inline m-0">
+                <button type="submit" class="btn btn-outline-light btn-sm rounded-pill px-3 py-1" title="Sign Out">
+                    <i class="bi bi-box-arrow-right me-1"></i> <span class="d-none d-sm-inline">Logout</span>
+                </button>
+            </form>
+        </div>
+    </div>
+</nav>
+</html>

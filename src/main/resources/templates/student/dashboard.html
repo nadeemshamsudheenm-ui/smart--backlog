@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header('Student Dashboard')}"></head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="dashboard-layout">
+    <aside th:replace="~{fragments/sidebar :: sidebar('dashboard')}"></aside>
+
+    <main class="main-content">
+        <!-- Page Header -->
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+            <div>
+                <h3 class="fw-bold mb-1 text-dark">
+                    Welcome back, <span th:text="${student.user.fullName}">Student</span>! 👋
+                </h3>
+                <p class="text-muted small mb-0">
+                    <span class="badge badge-scheme me-1" th:text="${student.scheme.name}">2019 Scheme</span>
+                    <span class="badge badge-semester me-1" th:text="${student.currentSemester.name}">Semester 5</span>
+                    Reg No: <strong th:text="${student.registerNumber}">TVE21CS042</strong>
+                </p>
+            </div>
+            <div class="d-flex gap-2">
+                <a th:href="@{/student/quiz}" class="btn btn-primary-custom btn-sm">
+                    <i class="bi bi-play-circle-fill me-1"></i> Start Practice Quiz
+                </a>
+                <a th:href="@{/student/materials}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-folder2-open me-1"></i> Study Materials
+                </a>
+            </div>
+        </div>
+
+        <!-- Alerts & Warnings -->
+        <div th:if="${report.weakSubjects != null and !report.weakSubjects.isEmpty()}" class="alert alert-warning py-3 mb-4 d-flex align-items-start gap-3 shadow-sm border-warning">
+            <i class="bi bi-exclamation-triangle-fill fs-4 text-warning"></i>
+            <div>
+                <h6 class="fw-bold mb-1">Focus Area Needed</h6>
+                <p class="small mb-0">
+                    Your recent practice test scores indicate low mastery in: 
+                    <strong th:text="${#strings.listJoin(report.weakSubjects, ', ')}">MAT101 (33.3%)</strong>. 
+                    Revise the module notes and re-attempt the quiz to improve your clearance probability.
+                </p>
+            </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="row g-3 mb-4">
+            <div class="col-sm-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-danger">
+                        <i class="bi bi-exclamation-diamond-fill"></i>
+                    </div>
+                    <div class="stat-value" th:text="${student.backlogCount}">3</div>
+                    <div class="stat-label">Supplementary Backlogs</div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-primary">
+                        <i class="bi bi-ui-checks"></i>
+                    </div>
+                    <div class="stat-value" th:text="${report.totalAttempts}">3</div>
+                    <div class="stat-label">Practice Tests Taken</div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-success">
+                        <i class="bi bi-award-fill"></i>
+                    </div>
+                    <div class="stat-value" th:text="${report.averageScore} + '%'">72.2%</div>
+                    <div class="stat-label">Average Score</div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-secondary">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+                    <div class="stat-value" th:text="${report.passRate} + '%'">66.7%</div>
+                    <div class="stat-label">Test Clearance Rate</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Backlog Subjects Prep Cards -->
+        <div class="content-card mb-4">
+            <div class="content-card-header">
+                <h5 class="content-card-title">
+                    <i class="bi bi-journal-bookmark-fill text-danger"></i> Registered Supplementary Subjects
+                </h5>
+                <a th:href="@{/student/profile}" class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-pencil-square me-1"></i> Update Backlogs
+                </a>
+            </div>
+            <div class="content-card-body">
+                <div class="row g-3" th:if="${student.supplementarySubjects != null and !student.supplementarySubjects.isEmpty()}">
+                    <div class="col-md-6 col-lg-4" th:each="sub : ${student.supplementarySubjects}">
+                        <div class="p-3 border rounded-3 bg-light h-100 d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle fw-semibold" th:text="${sub.code}">CST201</span>
+                                    <span class="badge bg-secondary-subtle text-secondary" th:text="${sub.semester.code}">S3</span>
+                                </div>
+                                <h6 class="fw-bold text-dark mb-1" th:text="${sub.name}">Data Structures</h6>
+                                <p class="text-muted small mb-3" style="font-size: 0.8rem;" th:text="${sub.description != null ? sub.description : 'Standard university supplementary syllabus.'}"></p>
+                            </div>
+                            <div class="d-flex gap-2 pt-2 border-top">
+                                <a th:href="@{/student/quiz/start/{id}(id=${sub.id})}" class="btn btn-primary btn-sm flex-fill">
+                                    <i class="bi bi-play-fill"></i> Quiz
+                                </a>
+                                <a th:href="@{/student/materials(subjectId=${sub.id})}" class="btn btn-outline-secondary btn-sm" title="Notes">
+                                    <i class="bi bi-book"></i> Notes
+                                </a>
+                                <a th:href="@{/student/papers(subjectId=${sub.id})}" class="btn btn-outline-secondary btn-sm" title="PYQs">
+                                    <i class="bi bi-file-earmark-text"></i> PYQ
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div th:if="${student.supplementarySubjects == null or student.supplementarySubjects.isEmpty()}" class="text-center py-4 text-muted">
+                    <i class="bi bi-check-circle-fill text-success fs-1 d-block mb-2"></i>
+                    <p class="mb-0">No active supplementary backlogs registered! Add subjects in your profile to access targeted materials.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Recent Quiz History -->
+            <div class="col-lg-8">
+                <div class="content-card h-100 mb-0">
+                    <div class="content-card-header">
+                        <h5 class="content-card-title">
+                            <i class="bi bi-clock-history text-primary"></i> Recent Practice Test Attempts
+                        </h5>
+                        <a th:href="@{/student/quiz/history}" class="btn btn-sm btn-link text-decoration-none">View All</a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Subject</th>
+                                    <th>Date</th>
+                                    <th>Score</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="attempt : ${recentAttempts}">
+                                    <td>
+                                        <strong th:text="${attempt.subject.code}">CST201</strong> - 
+                                        <span th:text="${attempt.subject.name}">Data Structures</span>
+                                    </td>
+                                    <td class="text-muted small" th:text="${#temporals.format(attempt.attemptedAt, 'dd MMM yyyy, hh:mm a')}">15 Oct 2026</td>
+                                    <td>
+                                        <span class="fw-bold" th:text="${attempt.correctAnswers} + '/' + ${attempt.totalQuestions}">5/6</span>
+                                        <small class="text-muted" th:text="'(' + ${attempt.scorePercentage} + '%)'">(83.3%)</small>
+                                    </td>
+                                    <td>
+                                        <span th:if="${attempt.passed}" class="badge bg-success-subtle text-success border border-success-subtle">
+                                            <i class="bi bi-check2"></i> Passed
+                                        </span>
+                                        <span th:unless="${attempt.passed}" class="badge bg-danger-subtle text-danger border border-danger-subtle">
+                                            <i class="bi bi-x"></i> Needs Revision
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a th:href="@{/student/quiz/result/{id}(id=${attempt.id})}" class="btn btn-sm btn-outline-primary py-0 px-2">
+                                            Review
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr th:if="${recentAttempts == null or recentAttempts.isEmpty()}">
+                                    <td colspan="5" class="text-center py-4 text-muted">
+                                        No practice tests attempted yet. Click <strong>Start Practice Quiz</strong> above!
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Academic Support & Mentor -->
+            <div class="col-lg-4">
+                <div class="content-card h-100 mb-0">
+                    <div class="content-card-header">
+                        <h5 class="content-card-title">
+                            <i class="bi bi-person-check-fill text-info"></i> Academic Advisory
+                        </h5>
+                    </div>
+                    <div class="content-card-body">
+                        <div class="mb-3 pb-3 border-bottom">
+                            <span class="text-muted small d-block mb-1">Assigned Faculty Advisor / Tutor</span>
+                            <div th:if="${student.assignedTutor != null}">
+                                <strong class="text-dark d-block" th:text="${student.assignedTutor.fullName}">Prof. Ramesh Menon</strong>
+                                <span class="text-muted small d-block" th:text="${student.assignedTutor.email}">ramesh@smartbacklog.edu</span>
+                                <span class="badge bg-primary-subtle text-primary mt-1">Available for Doubt Clearance</span>
+                            </div>
+                            <div th:if="${student.assignedTutor == null}">
+                                <span class="text-muted small">Pending department assignment</span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3 pb-3 border-bottom">
+                            <span class="text-muted small d-block mb-1">Linked Parent Contact</span>
+                            <div th:if="${student.parentUser != null}">
+                                <strong class="text-dark d-block" th:text="${student.parentUser.fullName}">Mr. Suresh Kumar</strong>
+                                <span class="text-muted small d-block" th:text="${student.parentUser.phone}">+91 9847123456</span>
+                            </div>
+                            <div th:if="${student.parentUser == null}">
+                                <span class="text-muted small">No parent account linked</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <span class="text-muted small d-block mb-1">Preparation Tip</span>
+                            <div class="p-2 bg-light rounded text-muted small">
+                                Solve at least 2 previous year question papers and complete subject quizzes with > 70% accuracy before the exam date.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

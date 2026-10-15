@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header('Student Profile & Backlogs')}"></head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="dashboard-layout">
+    <aside th:replace="~{fragments/sidebar :: sidebar('profile')}"></aside>
+
+    <main class="main-content">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h3 class="fw-bold mb-1 text-dark">Profile & Academic Classification</h3>
+                <p class="text-muted small mb-0">Update your current semester, academic scheme, and active supplementary subjects</p>
+            </div>
+        </div>
+
+        <div th:if="${successMessage}" class="alert alert-success py-2 small d-flex align-items-center gap-2 mb-3">
+            <i class="bi bi-check-circle-fill"></i>
+            <span th:text="${successMessage}">Success message</span>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger py-2 small d-flex align-items-center gap-2 mb-3">
+            <i class="bi bi-exclamation-octagon-fill"></i>
+            <span th:text="${errorMessage}">Error message</span>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="content-card">
+                    <div class="content-card-header">
+                        <h5 class="content-card-title">
+                            <i class="bi bi-person-gear text-primary"></i> Academic Details
+                        </h5>
+                    </div>
+                    <div class="content-card-body">
+                        <form th:action="@{/student/profile/update}" method="post">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-semibold">Register Number</label>
+                                    <input type="text" class="form-control bg-light" th:value="${student.registerNumber}" readonly>
+                                    <small class="text-muted" style="font-size: 0.75rem;">University Register Number is permanent</small>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-semibold">Username</label>
+                                    <input type="text" class="form-control bg-light" th:value="${student.user.username}" readonly>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="fullName" class="form-label small fw-semibold">Full Name *</label>
+                                    <input type="text" class="form-control" id="fullName" name="fullName" th:value="${student.user.fullName}" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="phone" class="form-label small fw-semibold">Phone Number</label>
+                                    <input type="text" class="form-control" id="phone" name="phone" th:value="${student.user.phone}">
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="schemeId" class="form-label small fw-semibold">Academic Regulations Scheme *</label>
+                                    <select class="form-select" id="schemeId" name="schemeId" required>
+                                        <option th:each="sch : ${schemes}" 
+                                                th:value="${sch.id}" 
+                                                th:text="${sch.name}" 
+                                                th:selected="${student.scheme != null and student.scheme.id == sch.id}">2019 Scheme</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="semesterId" class="form-label small fw-semibold">Current Semester *</label>
+                                    <select class="form-select" id="semesterId" name="semesterId" required>
+                                        <option th:each="sem : ${semesters}" 
+                                                th:value="${sem.id}" 
+                                                th:text="${sem.name}" 
+                                                th:selected="${student.currentSemester != null and student.currentSemester.id == sem.id}">Semester 5</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-12">
+                                    <label class="form-label small fw-semibold">Supplementary Subjects (Check all that apply)</label>
+                                    <div class="border rounded p-3 bg-light" style="max-height: 250px; overflow-y: auto;">
+                                        <div class="row g-2">
+                                            <div class="col-md-6" th:each="sub : ${allSubjects}">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" 
+                                                           name="supplementarySubjectIds" 
+                                                           th:value="${sub.id}" 
+                                                           th:id="'sub_' + ${sub.id}"
+                                                           th:checked="${student.supplementarySubjects != null and student.supplementarySubjects.contains(sub)}">
+                                                    <label class="form-check-label small" th:for="'sub_' + ${sub.id}">
+                                                        <strong th:text="${sub.code}">CST201</strong> - 
+                                                        <span th:text="${sub.name}">Data Structures</span>
+                                                        <span class="text-muted" style="font-size: 0.72rem;" th:text="'(' + ${sub.scheme.name} + ')'"></span>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-12">
+                                    <label for="notes" class="form-label small fw-semibold">Preparation Notes / Target</label>
+                                    <textarea class="form-control" id="notes" name="notes" rows="3" th:text="${student.notes}" placeholder="e.g. Planning to appear for S1 Mathematics and S3 Data Structures in upcoming supplementary exams."></textarea>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary-custom mt-4">
+                                <i class="bi bi-save me-1"></i> Save Profile Changes
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="content-card">
+                    <div class="content-card-header">
+                        <h5 class="content-card-title">
+                            <i class="bi bi-info-circle-fill text-info"></i> Support Information
+                        </h5>
+                    </div>
+                    <div class="content-card-body">
+                        <p class="small text-muted mb-3">
+                            The portal automatically aligns your study materials, previous papers, and mock quizzes according to your chosen <strong>Scheme (2019 / 2024)</strong> and <strong>Semester</strong>.
+                        </p>
+                        <div class="p-3 bg-light rounded-3 mb-3">
+                            <span class="fw-bold d-block text-dark small mb-1">Assigned Tutor</span>
+                            <span th:if="${student.assignedTutor != null}" th:text="${student.assignedTutor.fullName}">Prof. Ramesh Menon</span>
+                            <span th:if="${student.assignedTutor == null}" class="text-muted small">Not assigned yet</span>
+                        </div>
+                        <div class="p-3 bg-light rounded-3">
+                            <span class="fw-bold d-block text-dark small mb-1">Parent Link</span>
+                            <span th:if="${student.parentUser != null}" th:text="${student.parentUser.fullName}">Mr. Suresh Kumar</span>
+                            <span th:if="${student.parentUser == null}" class="text-muted small">Not linked</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

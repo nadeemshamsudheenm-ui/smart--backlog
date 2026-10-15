@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header('Study Materials Repository')}"></head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="dashboard-layout">
+    <aside th:replace="~{fragments/sidebar :: sidebar('materials')}"></aside>
+
+    <main class="main-content">
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+            <div>
+                <h3 class="fw-bold mb-1 text-dark">Supplementary Study Materials</h3>
+                <p class="text-muted small mb-0">High-yield revision notes, formula sheets, and module-wise exam guides</p>
+            </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="content-card mb-4">
+            <div class="content-card-body py-3">
+                <form th:action="@{/student/materials}" method="get" class="row g-2 align-items-center">
+                    <div class="col-md-4">
+                        <select name="subjectId" class="form-select form-select-sm">
+                            <option value="">-- All Supplementary Subjects --</option>
+                            <option th:each="s : ${subjects}" 
+                                    th:value="${s.id}" 
+                                    th:text="${s.code} + ' - ' + ${s.name} + ' (' + ${s.scheme.name} + ')'"
+                                    th:selected="${selectedSubjectId != null and selectedSubjectId == s.id}">CST201</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select name="schemeId" class="form-select form-select-sm">
+                            <option value="">-- All Schemes --</option>
+                            <option th:each="sch : ${schemes}" th:value="${sch.id}" th:text="${sch.name}">2019 Scheme</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select name="semesterId" class="form-select form-select-sm">
+                            <option value="">-- All Semesters --</option>
+                            <option th:each="sem : ${semesters}" th:value="${sem.id}" th:text="${sem.name}">Semester 3</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary btn-sm flex-fill">
+                            <i class="bi bi-funnel-fill me-1"></i> Filter
+                        </button>
+                        <a th:href="@{/student/materials}" class="btn btn-outline-secondary btn-sm" title="Reset">
+                            <i class="bi bi-arrow-counterclockwise"></i>
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Materials Grid -->
+        <div class="row g-3">
+            <div class="col-md-6 col-lg-4" th:each="mat : ${materials}">
+                <div class="content-card h-100 d-flex flex-column justify-content-between mb-0">
+                    <div class="content-card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge badge-scheme" th:text="${mat.scheme.name}">2019 Scheme</span>
+                            <span class="badge badge-semester" th:text="${mat.semester.code}">S3</span>
+                        </div>
+                        <h6 class="fw-bold text-dark mb-1" th:text="${mat.title}">Data Structures Module 1-5 Summary</h6>
+                        <span class="text-primary fw-semibold small d-block mb-2" th:text="${mat.subject.code} + ' - ' + ${mat.subject.name}">CST201</span>
+                        <p class="text-muted small mb-3" th:text="${mat.description}">Comprehensive handwritten revision kit.</p>
+
+                        <div th:if="${mat.contentSummary != null and !mat.contentSummary.isBlank()}" class="p-2 bg-light rounded text-muted small mb-3" style="font-size: 0.8rem;">
+                            <strong>Summary:</strong> <span th:text="${mat.contentSummary}">Summary text</span>
+                        </div>
+                    </div>
+                    <div class="p-3 bg-light border-top d-flex align-items-center justify-content-between">
+                        <small class="text-muted">
+                            <i class="bi bi-file-earmark-pdf text-danger me-1"></i>
+                            <span th:text="${mat.formattedFileSize}">2.4 MB</span>
+                            <span class="ms-2"><i class="bi bi-download"></i> <span th:text="${mat.downloadCount}">12</span></span>
+                        </small>
+                        <div class="d-flex gap-2">
+                            <a th:href="@{/view/material/{id}(id=${mat.id})}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                <i class="bi bi-eye"></i> View
+                            </a>
+                            <a th:href="@{/download/material/{id}(id=${mat.id})}" class="btn btn-sm btn-primary-custom">
+                                <i class="bi bi-download"></i> PDF
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div th:if="${materials == null or materials.isEmpty()}" class="col-12">
+                <div class="text-center py-5 bg-white rounded border">
+                    <i class="bi bi-folder-x text-muted fs-1 d-block mb-2"></i>
+                    <h6 class="fw-bold text-dark">No study materials found</h6>
+                    <p class="text-muted small">Try adjusting your filters above or check back shortly.</p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

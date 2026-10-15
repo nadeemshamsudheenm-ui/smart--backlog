@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header('Student Performance Review - ' + ${student.registerNumber})}"></head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="dashboard-layout">
+    <aside th:replace="~{fragments/sidebar :: sidebar('students')}"></aside>
+
+    <main class="main-content">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h3 class="fw-bold mb-1 text-dark" th:text="${student.user.fullName} + ' (' + ${student.registerNumber} + ')'">Arun Suresh</h3>
+                <p class="text-muted small mb-0">Individual academic performance, backlog status, and faculty advisor management</p>
+            </div>
+            <a th:href="@{/hod/students}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i> Back to Students
+            </a>
+        </div>
+
+        <div th:if="${successMessage}" class="alert alert-success py-2 small d-flex align-items-center gap-2 mb-3">
+            <i class="bi bi-check-circle-fill"></i>
+            <span th:text="${successMessage}">Success message</span>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger py-2 small d-flex align-items-center gap-2 mb-3">
+            <i class="bi bi-exclamation-octagon-fill"></i>
+            <span th:text="${errorMessage}">Error message</span>
+        </div>
+
+        <!-- Student Info & Tutor Assignment Row -->
+        <div class="row g-4 mb-4">
+            <!-- Student Bio Card -->
+            <div class="col-lg-6">
+                <div class="content-card h-100 mb-0">
+                    <div class="content-card-header">
+                        <h5 class="content-card-title">
+                            <i class="bi bi-person-vcard text-primary"></i> Academic Registration
+                        </h5>
+                    </div>
+                    <div class="content-card-body">
+                        <div class="row g-2 small">
+                            <div class="col-6 text-muted">Register Number:</div>
+                            <div class="col-6 fw-bold text-dark" th:text="${student.registerNumber}">TVE21CS042</div>
+
+                            <div class="col-6 text-muted">Academic Regulations:</div>
+                            <div class="col-6"><span class="badge badge-scheme" th:text="${student.scheme.name}">2019 Scheme</span></div>
+
+                            <div class="col-6 text-muted">Current Semester:</div>
+                            <div class="col-6"><span class="badge badge-semester" th:text="${student.currentSemester.name}">Semester 5</span></div>
+
+                            <div class="col-6 text-muted">Active Backlogs:</div>
+                            <div class="col-6">
+                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle" th:text="${student.backlogCount} + ' subjects'">3 subjects</span>
+                            </div>
+
+                            <div class="col-6 text-muted">Student Email:</div>
+                            <div class="col-6" th:text="${student.user.email}">arun@student.edu</div>
+
+                            <div class="col-6 text-muted">Contact Phone:</div>
+                            <div class="col-6" th:text="${student.user.phone != null ? student.user.phone : '-'}">+91 8590112233</div>
+
+                            <div class="col-6 text-muted">Linked Parent:</div>
+                            <div class="col-6" th:text="${student.parentUser != null ? student.parentUser.fullName : 'Not linked'}">Mr. Suresh Kumar</div>
+                        </div>
+
+                        <div class="mt-3 pt-3 border-top">
+                            <span class="fw-semibold text-muted small d-block mb-1">Supplementary Backlog Papers:</span>
+                            <div class="d-flex flex-wrap gap-1">
+                                <span th:each="sub : ${student.supplementarySubjects}" 
+                                      class="badge bg-light text-dark border p-2"
+                                      th:text="${sub.code} + ' - ' + ${sub.name}">CST201 - Data Structures</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Faculty Advisor Assignment Card -->
+            <div class="col-lg-6">
+                <div class="content-card h-100 mb-0">
+                    <div class="content-card-header">
+                        <h5 class="content-card-title">
+                            <i class="bi bi-person-check-fill text-info"></i> Assign / Manage Faculty Advisor
+                        </h5>
+                    </div>
+                    <div class="content-card-body">
+                        <p class="small text-muted mb-3">
+                            The assigned tutor monitors student practice tests, provides guidance notes, and reviews test performance.
+                        </p>
+
+                        <div class="p-3 bg-light rounded-3 mb-3">
+                            <span class="text-muted small d-block mb-1">Currently Assigned Advisor:</span>
+                            <strong class="fs-6 text-dark d-block" th:if="${student.assignedTutor != null}" th:text="${student.assignedTutor.fullName}">Prof. Ramesh Menon</strong>
+                            <span th:if="${student.assignedTutor == null}" class="text-danger small">No faculty tutor currently assigned</span>
+                        </div>
+
+                        <form th:action="@{/hod/tutors/assign}" method="post">
+                            <input type="hidden" name="studentProfileId" th:value="${student.id}">
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Select Department Faculty Advisor</label>
+                                <select class="form-select form-select-sm" name="tutorId" required>
+                                    <option th:each="t : ${tutors}" 
+                                            th:value="${t.id}" 
+                                            th:text="${t.fullName} + ' (' + ${t.email} + ')'"
+                                            th:selected="${student.assignedTutor != null and student.assignedTutor.id == t.id}">Prof. Ramesh Menon</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary-custom btn-sm">
+                                <i class="bi bi-check2-circle me-1"></i> Update Advisor Assignment
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Student Progress Report & Quiz Attempts -->
+        <div class="content-card">
+            <div class="content-card-header">
+                <h5 class="content-card-title">
+                    <i class="bi bi-clock-history text-primary"></i> Practice Test Attempts & Score Progression
+                </h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table custom-table">
+                    <thead>
+                        <tr>
+                            <th>Subject</th>
+                            <th>Attempted On</th>
+                            <th>Score</th>
+                            <th>Percentage</th>
+                            <th>Duration</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="a : ${quizAttempts}">
+                            <td><strong th:text="${a.subject.code}">CST201</strong> - <span th:text="${a.subject.name}">Data Structures</span></td>
+                            <td class="text-muted small" th:text="${#temporals.format(a.attemptedAt, 'dd MMM yyyy, hh:mm a')}">15 Oct 2026</td>
+                            <td><strong th:text="${a.correctAnswers}">5</strong> / <span th:text="${a.totalQuestions}">6</span></td>
+                            <td><span class="fw-bold" th:text="${a.scorePercentage} + '%'">83.3%</span></td>
+                            <td class="text-muted small" th:text="${a.formattedDuration}">07:00</td>
+                            <td>
+                                <span th:if="${a.passed}" class="badge bg-success-subtle text-success">Passed</span>
+                                <span th:unless="${a.passed}" class="badge bg-danger-subtle text-danger">Needs Revision</span>
+                            </td>
+                        </tr>
+                        <tr th:if="${quizAttempts == null or quizAttempts.isEmpty()}">
+                            <td colspan="6" class="text-center py-4 text-muted">No practice tests completed yet by this student.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

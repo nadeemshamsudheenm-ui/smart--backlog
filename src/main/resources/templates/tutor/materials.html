@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header('Tutor Study Resources')}"></head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="dashboard-layout">
+    <aside th:replace="~{fragments/sidebar :: sidebar('materials')}"></aside>
+
+    <main class="main-content">
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+            <div>
+                <h3 class="fw-bold mb-1 text-dark">Supplementary Study Materials &amp; Revision Notes</h3>
+                <p class="text-muted small mb-0">Provide module notes, formula cheat sheets, and solved problems for your students</p>
+            </div>
+            <button class="btn btn-primary-custom btn-sm" data-bs-toggle="modal" data-bs-target="#tutorUploadModal">
+                <i class="bi bi-cloud-arrow-up-fill me-1"></i> Upload Study Notes
+            </button>
+        </div>
+
+        <div th:if="${successMessage}" class="alert alert-success py-2 small d-flex align-items-center gap-2 mb-3">
+            <i class="bi bi-check-circle-fill"></i>
+            <span th:text="${successMessage}">Success message</span>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger py-2 small d-flex align-items-center gap-2 mb-3">
+            <i class="bi bi-exclamation-octagon-fill"></i>
+            <span th:text="${errorMessage}">Error message</span>
+        </div>
+
+        <!-- Materials Table -->
+        <div class="content-card">
+            <div class="table-responsive">
+                <table class="table custom-table">
+                    <thead>
+                        <tr>
+                            <th>Resource Title</th>
+                            <th>Subject</th>
+                            <th>Scheme</th>
+                            <th>Semester</th>
+                            <th>Uploaded By</th>
+                            <th>Downloads</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="m : ${materials}">
+                            <td>
+                                <strong class="text-dark d-block" th:text="${m.title}">Data Structures Module 1-5 Summary</strong>
+                                <small class="text-muted" th:text="${m.description}">Description</small>
+                            </td>
+                            <td><strong class="text-primary" th:text="${m.subject.code}">CST201</strong></td>
+                            <td><span class="badge badge-scheme" th:text="${m.scheme.name}">2019 Scheme</span></td>
+                            <td><span class="badge badge-semester" th:text="${m.semester.code}">S3</span></td>
+                            <td class="small text-muted" th:text="${m.uploadedBy != null ? m.uploadedBy.fullName : 'Faculty'}">Prof. Ramesh Menon</td>
+                            <td><span class="badge bg-light text-dark border" th:text="${m.downloadCount}">12</span></td>
+                            <td>
+                                <a th:href="@{/download/material/{id}(id=${m.id})}" class="btn btn-sm btn-outline-primary py-0 px-2" title="Download">
+                                    <i class="bi bi-download"></i> Download
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tutor Upload Modal -->
+        <div class="modal fade" id="tutorUploadModal" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <form th:action="@{/tutor/materials/create}" method="post" enctype="multipart/form-data">
+                        <div class="modal-header">
+                            <h5 class="modal-title fw-bold">Upload Supplementary Study Notes</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label small fw-semibold">Resource Title *</label>
+                                    <input type="text" class="form-control" name="title" placeholder="e.g. CST201 Quick Solved Proofs & Algorithms" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-semibold">Subject *</label>
+                                    <select class="form-select" name="subjectId" required>
+                                        <option th:each="s : ${subjects}" th:value="${s.id}" th:text="${s.code} + ' - ' + ${s.name} + ' (' + ${s.scheme.name} + ')'">CST201</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small fw-semibold">Scheme</label>
+                                    <select class="form-select" name="schemeId">
+                                        <option value="">Auto from subject</option>
+                                        <option th:each="sch : ${schemes}" th:value="${sch.id}" th:text="${sch.name}">2019 Scheme</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small fw-semibold">Semester</label>
+                                    <select class="form-select" name="semesterId">
+                                        <option value="">Auto from subject</option>
+                                        <option th:each="sem : ${semesters}" th:value="${sem.id}" th:text="${sem.name}">Semester 3</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label small fw-semibold">Resource Description</label>
+                                    <textarea class="form-control" name="description" rows="2" placeholder="Brief explanation of notes..."></textarea>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label small fw-semibold">Key Topics Summary & Exam Derivations</label>
+                                    <textarea class="form-control" name="contentSummary" rows="3" placeholder="Key topics summary..."></textarea>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label small fw-semibold">Upload PDF Document</label>
+                                    <input type="file" class="form-control" name="file" accept=".pdf">
+                                    <small class="text-muted">If no file is selected, a standardized study reference file will be generated automatically.</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary-custom btn-sm">Upload Material</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

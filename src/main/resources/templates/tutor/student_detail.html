@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header('Student Performance Review - ' + ${student.registerNumber})}"></head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="dashboard-layout">
+    <aside th:replace="~{fragments/sidebar :: sidebar('students')}"></aside>
+
+    <main class="main-content">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h3 class="fw-bold mb-1 text-dark" th:text="${student.user.fullName} + ' (' + ${student.registerNumber} + ')'">Arun Suresh</h3>
+                <p class="text-muted small mb-0">Supplementary preparation progress, practice test results, and direct student communication</p>
+            </div>
+            <a th:href="@{/tutor/students}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i> Back to Student List
+            </a>
+        </div>
+
+        <div th:if="${successMessage}" class="alert alert-success py-2 small d-flex align-items-center gap-2 mb-3">
+            <i class="bi bi-check-circle-fill"></i>
+            <span th:text="${successMessage}">Success message</span>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger py-2 small d-flex align-items-center gap-2 mb-3">
+            <i class="bi bi-exclamation-octagon-fill"></i>
+            <span th:text="${errorMessage}">Error message</span>
+        </div>
+
+        <!-- Student Summary & Send Advice Row -->
+        <div class="row g-4 mb-4">
+            <!-- Academic Overview -->
+            <div class="col-lg-7">
+                <div class="content-card h-100 mb-0">
+                    <div class="content-card-header">
+                        <h5 class="content-card-title">
+                            <i class="bi bi-person-check text-primary"></i> Academic Status
+                        </h5>
+                    </div>
+                    <div class="content-card-body">
+                        <div class="row g-3 mb-3">
+                            <div class="col-sm-6">
+                                <span class="text-muted small d-block">Regulations Scheme:</span>
+                                <strong class="badge badge-scheme" th:text="${student.scheme.name}">2019 Scheme</strong>
+                            </div>
+                            <div class="col-sm-6">
+                                <span class="text-muted small d-block">Current Semester:</span>
+                                <strong class="badge badge-semester" th:text="${student.currentSemester.name}">Semester 5</strong>
+                            </div>
+                            <div class="col-sm-6">
+                                <span class="text-muted small d-block">Tests Attempted:</span>
+                                <strong class="text-dark fs-6" th:text="${report.totalAttempts}">3</strong>
+                            </div>
+                            <div class="col-sm-6">
+                                <span class="text-muted small d-block">Average Score:</span>
+                                <strong class="text-success fs-6" th:text="${report.averageScore} + '%'">72.2%</strong>
+                            </div>
+                        </div>
+
+                        <div class="p-3 bg-light rounded-3 mb-3">
+                            <strong class="text-dark small d-block mb-1">Active Supplementary Backlog Papers:</strong>
+                            <div class="d-flex flex-wrap gap-1">
+                                <span th:each="sub : ${student.supplementarySubjects}" 
+                                      class="badge bg-danger-subtle text-danger border border-danger-subtle p-2"
+                                      th:text="${sub.code} + ' - ' + ${sub.name}">CST201 - Data Structures</span>
+                            </div>
+                        </div>
+
+                        <div th:if="${report.weakSubjects != null and !report.weakSubjects.isEmpty()}" class="p-3 bg-warning-subtle rounded-3 text-warning-emphasis">
+                            <strong class="d-block small mb-1"><i class="bi bi-exclamation-triangle-fill"></i> Weak Subject Flagged (&lt; 50% score):</strong>
+                            <span th:text="${#strings.listJoin(report.weakSubjects, ', ')}">MAT101 (33.3%)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Send Advice Form -->
+            <div class="col-lg-5">
+                <div class="content-card h-100 mb-0">
+                    <div class="content-card-header">
+                        <h5 class="content-card-title">
+                            <i class="bi bi-chat-left-dots-fill text-info"></i> Send Tutor Study Advice
+                        </h5>
+                    </div>
+                    <div class="content-card-body">
+                        <form th:action="@{/tutor/notifications/send}" method="post">
+                            <input type="hidden" name="recipientId" th:value="${student.user.id}">
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Subject *</label>
+                                <input type="text" class="form-control form-control-sm" name="title" value="Study Guidance from Faculty Advisor" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Advice Message *</label>
+                                <textarea class="form-control form-control-sm" name="message" rows="4" placeholder="Advise student on key modules, questions to practice, or doubt clearance hours..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary-custom btn-sm w-100">
+                                <i class="bi bi-send-fill me-1"></i> Send Advice to Student
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Student Test Attempts Table -->
+        <div class="content-card">
+            <div class="content-card-header">
+                <h5 class="content-card-title">
+                    <i class="bi bi-clock-history text-secondary"></i> Practice Quiz Attempts
+                </h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table custom-table">
+                    <thead>
+                        <tr>
+                            <th>Subject</th>
+                            <th>Attempted On</th>
+                            <th>Score</th>
+                            <th>Percentage</th>
+                            <th>Duration</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="a : ${attempts}">
+                            <td><strong th:text="${a.subject.code}">CST201</strong> - <span th:text="${a.subject.name}">Data Structures</span></td>
+                            <td class="text-muted small" th:text="${#temporals.format(a.attemptedAt, 'dd MMM yyyy, hh:mm a')}">15 Oct 2026</td>
+                            <td><strong th:text="${a.correctAnswers}">5</strong> / <span th:text="${a.totalQuestions}">6</span></td>
+                            <td><span class="fw-bold" th:text="${a.scorePercentage} + '%'">83.3%</span></td>
+                            <td class="text-muted small" th:text="${a.formattedDuration}">07:00</td>
+                            <td>
+                                <span th:if="${a.passed}" class="badge bg-success-subtle text-success">Passed</span>
+                                <span th:unless="${a.passed}" class="badge bg-danger-subtle text-danger">Needs Revision</span>
+                            </td>
+                        </tr>
+                        <tr th:if="${attempts == null or attempts.isEmpty()}">
+                            <td colspan="6" class="text-center py-4 text-muted">No test attempts completed yet.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

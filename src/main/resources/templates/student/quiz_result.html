@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header('Practice Quiz Result')}"></head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="dashboard-layout">
+    <aside th:replace="~{fragments/sidebar :: sidebar('quiz')}"></aside>
+
+    <main class="main-content">
+        <!-- Results Summary Card -->
+        <div class="content-card text-center py-4 mb-4">
+            <div class="content-card-body">
+                <!-- Score Circle -->
+                <div class="score-circle" th:classappend="${attempt.passed ? 'score-circle-pass' : 'score-circle-fail'}">
+                    <span class="fs-1 fw-bold" th:text="${attempt.scorePercentage} + '%'">83.3%</span>
+                    <span class="small fw-semibold text-uppercase" style="font-size: 0.75rem;" th:text="${attempt.passed ? 'PASSED' : 'NEEDS REVISION'}">PASSED</span>
+                </div>
+
+                <h4 class="fw-bold text-dark mb-1" th:text="${attempt.subject.code} + ' - ' + ${attempt.subject.name}">
+                    CST201 - Data Structures
+                </h4>
+                <p class="text-muted small mb-4">
+                    Attempted on <strong th:text="${#temporals.format(attempt.attemptedAt, 'dd MMMM yyyy, hh:mm a')}">15 October 2026</strong>
+                    &bull; Duration: <strong th:text="${attempt.formattedDuration}">07:00</strong>
+                </p>
+
+                <!-- Stat Pills -->
+                <div class="d-flex justify-content-center gap-3 flex-wrap mb-4">
+                    <div class="p-3 bg-light rounded-3 text-center" style="min-width: 120px;">
+                        <span class="d-block text-muted small">Total Questions</span>
+                        <strong class="fs-4 text-dark" th:text="${attempt.totalQuestions}">6</strong>
+                    </div>
+                    <div class="p-3 bg-success-subtle text-success rounded-3 text-center" style="min-width: 120px;">
+                        <span class="d-block small">Correct</span>
+                        <strong class="fs-4" th:text="${attempt.correctAnswers}">5</strong>
+                    </div>
+                    <div class="p-3 bg-danger-subtle text-danger rounded-3 text-center" style="min-width: 120px;">
+                        <span class="d-block small">Incorrect</span>
+                        <strong class="fs-4" th:text="${attempt.wrongAnswers}">1</strong>
+                    </div>
+                    <div class="p-3 bg-light rounded-3 text-center" style="min-width: 120px;">
+                        <span class="d-block text-muted small">Pass Benchmark</span>
+                        <strong class="fs-4 text-dark">50.0%</strong>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-center gap-2">
+                    <a th:href="@{/student/quiz/start/{id}(id=${attempt.subject.id})}" class="btn btn-primary-custom">
+                        <i class="bi bi-arrow-repeat me-1"></i> Retake Practice Quiz
+                    </a>
+                    <a th:href="@{/student/progress}" class="btn btn-outline-secondary">
+                        <i class="bi bi-graph-up-arrow me-1"></i> View Progress Analytics
+                    </a>
+                    <a th:href="@{/student/materials(subjectId=${attempt.subject.id})}" class="btn btn-outline-primary">
+                        <i class="bi bi-book me-1"></i> Subject Notes
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Question Review Section -->
+        <h4 class="fw-bold text-dark mb-3">
+            <i class="bi bi-card-checklist text-primary me-2"></i> Question-by-Question Review & Feedback
+        </h4>
+
+        <div class="question-block" th:each="ans, iterStat : ${answers}">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="question-number-badge" th:text="'Question ' + ${iterStat.count}">Question 1</span>
+                <div>
+                    <span th:if="${ans.correct}" class="badge bg-success-subtle text-success fs-6 px-3 py-1">
+                        <i class="bi bi-check-circle-fill me-1"></i> Correct (+1)
+                    </span>
+                    <span th:unless="${ans.correct}" class="badge bg-danger-subtle text-danger fs-6 px-3 py-1">
+                        <i class="bi bi-x-circle-fill me-1"></i> Incorrect (0)
+                    </span>
+                </div>
+            </div>
+
+            <div class="question-text" th:text="${ans.question.questionText}">
+                Question statement
+            </div>
+
+            <!-- Options Review -->
+            <div class="options-container">
+                <!-- Option A -->
+                <div class="option-label"
+                     th:classappend="${
+                         ans.question.correctOption == 'A' ? 'result-option-correct' :
+                         (ans.selectedOption == 'A' and !ans.correct ? 'result-option-wrong' : '')
+                     }">
+                    <span class="option-key">A</span>
+                    <span th:text="${ans.question.optionA}">Option A</span>
+                    <span th:if="${ans.question.correctOption == 'A'}" class="ms-auto badge bg-success">Correct Answer</span>
+                    <span th:if="${ans.selectedOption == 'A' and !ans.correct}" class="ms-auto badge bg-danger">Your Choice</span>
+                </div>
+
+                <!-- Option B -->
+                <div class="option-label"
+                     th:classappend="${
+                         ans.question.correctOption == 'B' ? 'result-option-correct' :
+                         (ans.selectedOption == 'B' and !ans.correct ? 'result-option-wrong' : '')
+                     }">
+                    <span class="option-key">B</span>
+                    <span th:text="${ans.question.optionB}">Option B</span>
+                    <span th:if="${ans.question.correctOption == 'B'}" class="ms-auto badge bg-success">Correct Answer</span>
+                    <span th:if="${ans.selectedOption == 'B' and !ans.correct}" class="ms-auto badge bg-danger">Your Choice</span>
+                </div>
+
+                <!-- Option C -->
+                <div class="option-label"
+                     th:classappend="${
+                         ans.question.correctOption == 'C' ? 'result-option-correct' :
+                         (ans.selectedOption == 'C' and !ans.correct ? 'result-option-wrong' : '')
+                     }">
+                    <span class="option-key">C</span>
+                    <span th:text="${ans.question.optionC}">Option C</span>
+                    <span th:if="${ans.question.correctOption == 'C'}" class="ms-auto badge bg-success">Correct Answer</span>
+                    <span th:if="${ans.selectedOption == 'C' and !ans.correct}" class="ms-auto badge bg-danger">Your Choice</span>
+                </div>
+
+                <!-- Option D -->
+                <div class="option-label"
+                     th:classappend="${
+                         ans.question.correctOption == 'D' ? 'result-option-correct' :
+                         (ans.selectedOption == 'D' and !ans.correct ? 'result-option-wrong' : '')
+                     }">
+                    <span class="option-key">D</span>
+                    <span th:text="${ans.question.optionD}">Option D</span>
+                    <span th:if="${ans.question.correctOption == 'D'}" class="ms-auto badge bg-success">Correct Answer</span>
+                    <span th:if="${ans.selectedOption == 'D' and !ans.correct}" class="ms-auto badge bg-danger">Your Choice</span>
+                </div>
+            </div>
+
+            <!-- University Explanation Note -->
+            <div class="explanation-card" th:if="${ans.question.explanation != null and !ans.question.explanation.isBlank()}">
+                <strong class="d-block mb-1 text-primary">
+                    <i class="bi bi-lightbulb-fill me-1"></i> Academic Explanation & Solution Key:
+                </strong>
+                <span th:text="${ans.question.explanation}">Detailed derivation explanation</span>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

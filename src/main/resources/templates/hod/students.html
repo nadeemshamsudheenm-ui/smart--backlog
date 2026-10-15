@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header('Supplementary Students Directory')}"></head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="dashboard-layout">
+    <aside th:replace="~{fragments/sidebar :: sidebar('students')}"></aside>
+
+    <main class="main-content">
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+            <div>
+                <h3 class="fw-bold mb-1 text-dark">Supplementary Student Classification Directory</h3>
+                <p class="text-muted small mb-0">Classify and filter B.Tech supplementary candidates by Scheme (2019/2024), Semester, and Backlog Papers</p>
+            </div>
+        </div>
+
+        <!-- Classification Filters Bar -->
+        <div class="content-card mb-4">
+            <div class="content-card-body py-3">
+                <form th:action="@{/hod/students}" method="get" class="row g-2 align-items-center">
+                    <div class="col-md-3">
+                        <select name="schemeId" class="form-select form-select-sm">
+                            <option value="">-- All University Schemes --</option>
+                            <option th:each="sch : ${schemes}" 
+                                    th:value="${sch.id}" 
+                                    th:text="${sch.name}"
+                                    th:selected="${selectedSchemeId != null and selectedSchemeId == sch.id}">2019 Scheme</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select name="semesterId" class="form-select form-select-sm">
+                            <option value="">-- All Semesters --</option>
+                            <option th:each="sem : ${semesters}" 
+                                    th:value="${sem.id}" 
+                                    th:text="${sem.name}"
+                                    th:selected="${selectedSemesterId != null and selectedSemesterId == sem.id}">Semester 3</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <select name="subjectId" class="form-select form-select-sm">
+                            <option value="">-- Filter by Specific Backlog Subject --</option>
+                            <option th:each="sub : ${subjects}" 
+                                    th:value="${sub.id}" 
+                                    th:text="${sub.code} + ' - ' + ${sub.name}"
+                                    th:selected="${selectedSubjectId != null and selectedSubjectId == sub.id}">CST201</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary btn-sm flex-fill">Apply</button>
+                        <a th:href="@{/hod/students}" class="btn btn-outline-secondary btn-sm">Reset</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Student Roster Table -->
+        <div class="content-card">
+            <div class="table-responsive">
+                <table class="table custom-table">
+                    <thead>
+                        <tr>
+                            <th>Register No</th>
+                            <th>Student Name</th>
+                            <th>Scheme</th>
+                            <th>Semester</th>
+                            <th>Supplementary Subjects (Backlogs)</th>
+                            <th>Assigned Tutor</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="st : ${students}">
+                            <td><strong class="text-primary" th:text="${st.registerNumber}">TVE21CS042</strong></td>
+                            <td>
+                                <strong class="text-dark d-block" th:text="${st.user.fullName}">Arun Suresh</strong>
+                                <small class="text-muted" th:text="${st.user.email}">arun@student.edu</small>
+                            </td>
+                            <td><span class="badge badge-scheme" th:text="${st.scheme != null ? st.scheme.name : 'N/A'}">2019 Scheme</span></td>
+                            <td><span class="badge badge-semester" th:text="${st.currentSemester != null ? st.currentSemester.code : 'N/A'}">S5</span></td>
+                            <td>
+                                <div class="d-flex flex-wrap gap-1">
+                                    <span th:each="sub : ${st.supplementarySubjects}" 
+                                          class="badge bg-danger-subtle text-danger border border-danger-subtle"
+                                          th:text="${sub.code}">CST201</span>
+                                    <span th:if="${st.supplementarySubjects == null or st.supplementarySubjects.isEmpty()}" 
+                                          class="text-muted small">None</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span th:if="${st.assignedTutor != null}" class="text-dark small fw-semibold" th:text="${st.assignedTutor.fullName}">Prof. Ramesh</span>
+                                <span th:if="${st.assignedTutor == null}" class="badge bg-warning-subtle text-warning">Unassigned</span>
+                            </td>
+                            <td>
+                                <a th:href="@{/hod/students/{id}(id=${st.id})}" class="btn btn-sm btn-outline-primary py-0 px-2">
+                                    View Performance
+                                </a>
+                            </td>
+                        </tr>
+                        <tr th:if="${students == null or students.isEmpty()}">
+                            <td colspan="7" class="text-center py-5 text-muted">
+                                No students match the selected classification criteria.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

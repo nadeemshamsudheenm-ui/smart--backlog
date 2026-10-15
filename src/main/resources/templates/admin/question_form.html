@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header(${questionDto.id != null ? 'Edit Practice Question' : 'Create Practice Question'})}"></head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="dashboard-layout">
+    <aside th:replace="~{fragments/sidebar :: sidebar('questions')}"></aside>
+
+    <main class="main-content">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <div>
+                <h3 class="fw-bold mb-1 text-dark" th:text="${questionDto.id != null ? 'Edit Question' : 'Add Question to Bank'}">Create Practice Question</h3>
+                <p class="text-muted small mb-0">Add high-yield university examination multiple-choice questions with answer keys and explanations</p>
+            </div>
+            <a th:href="@{/admin/questions}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-left me-1"></i> Back to Questions
+            </a>
+        </div>
+
+        <div class="content-card" style="max-width: 900px;">
+            <div class="content-card-body">
+                <form th:action="@{/admin/questions/save}" th:object="${questionDto}" method="post">
+                    <input type="hidden" th:field="*{id}">
+
+                    <div class="row g-3">
+                        <div class="col-md-7">
+                            <label for="subjectId" class="form-label small fw-semibold">Target Subject *</label>
+                            <select class="form-select" id="subjectId" th:field="*{subjectId}" required>
+                                <option value="" disabled selected>-- Select Subject --</option>
+                                <option th:each="s : ${subjects}" 
+                                        th:value="${s.id}" 
+                                        th:text="${s.code} + ' - ' + ${s.name} + ' (' + ${s.scheme.name} + ')'">CST201</option>
+                            </select>
+                        </div>
+                        <div class="col-md-5">
+                            <label for="difficultyLevel" class="form-label small fw-semibold">Difficulty Level *</label>
+                            <select class="form-select" id="difficultyLevel" th:field="*{difficultyLevel}" required>
+                                <option value="EASY">EASY (Direct Concept / Formula)</option>
+                                <option value="MEDIUM" selected>MEDIUM (Standard University Level)</option>
+                                <option value="HARD">HARD (Multi-step Analysis / Derivation)</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12">
+                            <label for="questionText" class="form-label small fw-semibold">Question Statement *</label>
+                            <textarea class="form-control" id="questionText" th:field="*{questionText}" rows="3" placeholder="Enter clear, concise question statement..." required></textarea>
+                            <div class="text-danger small" th:if="${#fields.hasErrors('questionText')}" th:errors="*{questionText}"></div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="optionA" class="form-label small fw-semibold">Option A *</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light fw-bold">A</span>
+                                <input type="text" class="form-control" id="optionA" th:field="*{optionA}" placeholder="First answer choice" required>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="optionB" class="form-label small fw-semibold">Option B *</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light fw-bold">B</span>
+                                <input type="text" class="form-control" id="optionB" th:field="*{optionB}" placeholder="Second answer choice" required>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="optionC" class="form-label small fw-semibold">Option C *</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light fw-bold">C</span>
+                                <input type="text" class="form-control" id="optionC" th:field="*{optionC}" placeholder="Third answer choice" required>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="optionD" class="form-label small fw-semibold">Option D *</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light fw-bold">D</span>
+                                <input type="text" class="form-control" id="optionD" th:field="*{optionD}" placeholder="Fourth answer choice" required>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="correctOption" class="form-label small fw-semibold text-success">Correct Option *</label>
+                            <select class="form-select border-success" id="correctOption" th:field="*{correctOption}" required>
+                                <option value="" disabled selected>-- Select Correct Answer --</option>
+                                <option value="A">Option A</option>
+                                <option value="B">Option B</option>
+                                <option value="C">Option C</option>
+                                <option value="D">Option D</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="sourceExam" class="form-label small fw-semibold">Source Exam / Paper Reference</label>
+                            <input type="text" class="form-control" id="sourceExam" th:field="*{sourceExam}" placeholder="e.g. Dec 2023 Supplementary Exam Part A Q2">
+                        </div>
+
+                        <div class="col-12">
+                            <label for="explanation" class="form-label small fw-semibold">Academic Solution Key & Explanation</label>
+                            <textarea class="form-control" id="explanation" th:field="*{explanation}" rows="3" placeholder="Explain why the selected option is correct and cite theorems or logic for student review..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4 pt-3 border-top">
+                        <button type="submit" class="btn btn-primary-custom px-4">
+                            <i class="bi bi-save me-1"></i> Save Practice Question
+                        </button>
+                        <a th:href="@{/admin/questions}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

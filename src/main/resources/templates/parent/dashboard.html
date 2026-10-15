@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header('Parent Portal - Ward Performance')}"></head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="dashboard-layout">
+    <aside th:replace="~{fragments/sidebar :: sidebar('dashboard')}"></aside>
+
+    <main class="main-content">
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+            <div>
+                <h3 class="fw-bold mb-1 text-dark">Parent Portal - Academic Monitoring</h3>
+                <p class="text-muted small mb-0">Track your ward's supplementary preparation, mock quiz scores, and academic support</p>
+            </div>
+            <a th:href="@{/parent/ward-progress}" class="btn btn-primary-custom btn-sm" th:if="${ward != null}">
+                <i class="bi bi-graph-up-arrow me-1"></i> Full Progress Analytics
+            </a>
+        </div>
+
+        <div th:if="${ward == null}" class="text-center py-5 bg-white rounded border">
+            <i class="bi bi-person-x text-muted fs-1 d-block mb-2"></i>
+            <h5 class="fw-bold text-dark">No student account currently linked</h5>
+            <p class="text-muted small">Please contact the department HOD or admin with your ward's register number to link accounts.</p>
+        </div>
+
+        <div th:if="${ward != null}">
+            <!-- Ward Profile Card -->
+            <div class="content-card mb-4">
+                <div class="content-card-body">
+                    <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="stat-icon stat-icon-primary mb-0" style="width: 56px; height: 56px; font-size: 1.8rem;">
+                                <i class="bi bi-mortarboard-fill"></i>
+                            </div>
+                            <div>
+                                <h4 class="fw-bold text-dark mb-1" th:text="${ward.user.fullName}">Arun Suresh</h4>
+                                <div class="d-flex flex-wrap gap-2 align-items-center small text-muted">
+                                    <span>Reg No: <strong class="text-dark" th:text="${ward.registerNumber}">TVE21CS042</strong></span>
+                                    <span>&bull;</span>
+                                    <span class="badge badge-scheme" th:text="${ward.scheme.name}">2019 Scheme</span>
+                                    <span>&bull;</span>
+                                    <span class="badge badge-semester" th:text="${ward.currentSemester.name}">Semester 5</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="text-md-end">
+                            <span class="text-muted small d-block">Assigned Faculty Advisor</span>
+                            <strong class="text-dark" th:if="${ward.assignedTutor != null}" th:text="${ward.assignedTutor.fullName}">Prof. Ramesh Menon</strong>
+                            <span class="text-muted small d-block" th:if="${ward.assignedTutor != null}" th:text="${ward.assignedTutor.phone}">+91 9447303030</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Row -->
+            <div class="row g-3 mb-4">
+                <div class="col-sm-6 col-xl-3">
+                    <div class="stat-card">
+                        <div class="stat-icon stat-icon-danger">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                        </div>
+                        <div class="stat-value" th:text="${ward.backlogCount}">3</div>
+                        <div class="stat-label">Supplementary Backlogs</div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-xl-3">
+                    <div class="stat-card">
+                        <div class="stat-icon stat-icon-primary">
+                            <i class="bi bi-ui-checks"></i>
+                        </div>
+                        <div class="stat-value" th:text="${report.totalAttempts}">3</div>
+                        <div class="stat-label">Practice Tests Taken</div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-xl-3">
+                    <div class="stat-card">
+                        <div class="stat-icon stat-icon-success">
+                            <i class="bi bi-award-fill"></i>
+                        </div>
+                        <div class="stat-value" th:text="${report.averageScore} + '%'">72.2%</div>
+                        <div class="stat-label">Average Practice Score</div>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-xl-3">
+                    <div class="stat-card">
+                        <div class="stat-icon stat-icon-secondary">
+                            <i class="bi bi-shield-check"></i>
+                        </div>
+                        <div class="stat-value" th:text="${report.passRate} + '%'">66.7%</div>
+                        <div class="stat-label">Clearance Success Rate</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weak Subject Alerts for Parent -->
+            <div th:if="${report.weakSubjects != null and !report.weakSubjects.isEmpty()}" class="alert alert-warning py-3 mb-4 d-flex align-items-start gap-3 border-warning shadow-sm">
+                <i class="bi bi-exclamation-triangle-fill fs-4 text-warning"></i>
+                <div>
+                    <h6 class="fw-bold mb-1">Academic Alert: Attention Recommended</h6>
+                    <p class="small mb-0">
+                        Your ward scored below 50% in practice tests for: 
+                        <strong th:text="${#strings.listJoin(report.weakSubjects, ', ')}">MAT101 (33.3%)</strong>. 
+                        Please encourage him to consult his faculty advisor (<span th:text="${ward.assignedTutor != null ? ward.assignedTutor.fullName : 'Faculty Tutor'}">Tutor</span>) for remedial support.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Backlog Subjects & Recent Quiz Tests -->
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <div class="content-card h-100 mb-0">
+                        <div class="content-card-header">
+                            <h5 class="content-card-title">
+                                <i class="bi bi-journal-x text-danger"></i> Registered Supplementary Papers
+                            </h5>
+                        </div>
+                        <div class="content-card-body p-0">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item p-3 d-flex align-items-center justify-content-between" th:each="sub : ${ward.supplementarySubjects}">
+                                    <div>
+                                        <strong class="d-block text-dark" th:text="${sub.name}">Data Structures</strong>
+                                        <span class="text-muted small" th:text="${sub.code} + ' (' + ${sub.semester.code} + ')'">CST201 (S3)</span>
+                                    </div>
+                                    <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Needs Clearance</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="content-card h-100 mb-0">
+                        <div class="content-card-header">
+                            <h5 class="content-card-title">
+                                <i class="bi bi-clock-history text-primary"></i> Ward's Practice Test Results
+                            </h5>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table custom-table">
+                                <thead>
+                                    <tr>
+                                        <th>Subject</th>
+                                        <th>Date</th>
+                                        <th>Score</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="a : ${recentAttempts}">
+                                        <td><strong th:text="${a.subject.code}">CST201</strong></td>
+                                        <td class="text-muted small" th:text="${#temporals.format(a.attemptedAt, 'dd MMM yyyy')}">15 Oct 2026</td>
+                                        <td><span class="fw-bold" th:text="${a.scorePercentage} + '%'">83.3%</span></td>
+                                        <td>
+                                            <span th:if="${a.passed}" class="badge bg-success-subtle text-success">Passed</span>
+                                            <span th:unless="${a.passed}" class="badge bg-danger-subtle text-danger">Needs Revision</span>
+                                        </td>
+                                        <td>
+                                            <a th:href="@{/parent/quiz/result/{id}(id=${a.id})}" class="btn btn-sm btn-outline-primary py-0 px-2">
+                                                Review
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

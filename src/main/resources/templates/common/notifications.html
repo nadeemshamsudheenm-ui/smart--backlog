@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header('My Notifications')}"></head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="dashboard-layout">
+    <aside th:replace="~{fragments/sidebar :: sidebar('notifications')}"></aside>
+
+    <main class="main-content">
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+            <div>
+                <h3 class="fw-bold mb-1 text-dark">Portal Notifications & Announcements</h3>
+                <p class="text-muted small mb-0">Examination timetables, practice quiz alerts, study notes, and tutor updates</p>
+            </div>
+            <form th:action="@{/notifications/read-all}" method="post" class="d-inline">
+                <button type="submit" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-check2-all me-1"></i> Mark All as Read
+                </button>
+            </form>
+        </div>
+
+        <div class="content-card">
+            <div class="content-card-body p-0">
+                <div class="list-group list-group-flush">
+                    <div class="list-group-item p-3" 
+                         th:each="n : ${notifications}"
+                         th:classappend="${!n.read ? 'bg-light border-start border-primary border-3' : ''}">
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge"
+                                      th:classappend="${
+                                          n.type == 'EXAM_ALERT' ? 'bg-danger-subtle text-danger' :
+                                          (n.type == 'QUIZ_RESULT' ? 'bg-success-subtle text-success' :
+                                          (n.type == 'TUTOR_ADVICE' ? 'bg-info-subtle text-info' : 'bg-primary-subtle text-primary'))
+                                      }"
+                                      th:text="${n.type}">ANNOUNCEMENT</span>
+                                <span th:if="${!n.read}" class="badge bg-primary">New</span>
+                            </div>
+                            <small class="text-muted" th:text="${#temporals.format(n.createdAt, 'dd MMM yyyy, hh:mm a')}">15 Oct 2026</small>
+                        </div>
+
+                        <h6 class="fw-bold text-dark mb-1" th:text="${n.title}">Notification Title</h6>
+                        <p class="text-muted small mb-2" th:text="${n.message}">Notification message body text...</p>
+
+                        <div class="d-flex align-items-center gap-2">
+                            <a th:if="${n.linkUrl != null and !n.linkUrl.isBlank()}" 
+                               th:href="${n.linkUrl}" 
+                               class="btn btn-sm btn-primary py-0 px-2 small">
+                                View Details <i class="bi bi-arrow-right"></i>
+                            </a>
+                            <a th:if="${!n.read}" 
+                               th:href="@{/notifications/read/{id}(id=${n.id})}" 
+                               class="btn btn-sm btn-outline-secondary py-0 px-2 small">
+                                Mark as Read
+                            </a>
+                        </div>
+                    </div>
+
+                    <div th:if="${notifications == null or notifications.isEmpty()}" class="p-5 text-center text-muted">
+                        <i class="bi bi-bell-slash text-muted fs-1 d-block mb-2"></i>
+                        <h6 class="fw-bold">No notifications to display</h6>
+                        <span class="small">You are all caught up with portal alerts.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header('Faculty Advisor Dashboard')}"></head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="dashboard-layout">
+    <aside th:replace="~{fragments/sidebar :: sidebar('dashboard')}"></aside>
+
+    <main class="main-content">
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+            <div>
+                <h3 class="fw-bold mb-1 text-dark">Faculty Advisor &amp; Tutor Portal</h3>
+                <p class="text-muted small mb-0">Monitor your assigned supplementary students, provide high-yield notes, and review test performances</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a th:href="@{/tutor/materials}" class="btn btn-primary-custom btn-sm">
+                    <i class="bi bi-file-earmark-plus-fill me-1"></i> Upload Study Notes
+                </a>
+                <a th:href="@{/tutor/questions}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-patch-question-fill me-1"></i> Question Bank
+                </a>
+            </div>
+        </div>
+
+        <!-- Metric Widgets -->
+        <div class="row g-3 mb-4">
+            <div class="col-sm-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-primary">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                    <div class="stat-value" th:text="${totalAssignedStudents}">2</div>
+                    <div class="stat-label">Assigned Students</div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-success">
+                        <i class="bi bi-file-earmark-pdf-fill"></i>
+                    </div>
+                    <div class="stat-value" th:text="${totalMaterials}">4</div>
+                    <div class="stat-label">Study Resources Available</div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-secondary">
+                        <i class="bi bi-patch-question-fill"></i>
+                    </div>
+                    <div class="stat-value" th:text="${totalQuestions}">14</div>
+                    <div class="stat-label">MCQ Question Bank</div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-warning">
+                        <i class="bi bi-bell-fill"></i>
+                    </div>
+                    <div class="stat-value" th:text="${unreadNotifications}">1</div>
+                    <div class="stat-label">Unread Notifications</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Assigned Students Table -->
+        <div class="content-card">
+            <div class="content-card-header">
+                <h5 class="content-card-title">
+                    <i class="bi bi-person-lines-fill text-primary"></i> Your Assigned Supplementary Students
+                </h5>
+                <a th:href="@{/tutor/students}" class="btn btn-sm btn-link text-decoration-none">View All</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table custom-table">
+                    <thead>
+                        <tr>
+                            <th>Register No</th>
+                            <th>Student Name</th>
+                            <th>Scheme</th>
+                            <th>Semester</th>
+                            <th>Supplementary Papers</th>
+                            <th>Contact</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="st : ${students}">
+                            <td><strong class="text-primary" th:text="${st.registerNumber}">TVE21CS042</strong></td>
+                            <td><strong class="text-dark" th:text="${st.user.fullName}">Arun Suresh</strong></td>
+                            <td><span class="badge badge-scheme" th:text="${st.scheme.name}">2019 Scheme</span></td>
+                            <td><span class="badge badge-semester" th:text="${st.currentSemester.code}">S5</span></td>
+                            <td>
+                                <div class="d-flex flex-wrap gap-1">
+                                    <span th:each="sub : ${st.supplementarySubjects}" 
+                                          class="badge bg-danger-subtle text-danger border border-danger-subtle" 
+                                          th:text="${sub.code}">CST201</span>
+                                </div>
+                            </td>
+                            <td class="small text-muted" th:text="${st.user.phone != null ? st.user.phone : st.user.email}">phone</td>
+                            <td>
+                                <a th:href="@{/tutor/student/{id}(id=${st.id})}" class="btn btn-sm btn-primary-custom py-0 px-2">
+                                    Review & Guide
+                                </a>
+                            </td>
+                        </tr>
+                        <tr th:if="${students == null or students.isEmpty()}">
+                            <td colspan="7" class="text-center py-4 text-muted">No students currently assigned. The HOD assigns students to advisors.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

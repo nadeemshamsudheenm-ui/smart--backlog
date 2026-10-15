@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header('Secure Login')}"></head>
+<body>
+
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <!-- Logo & Title -->
+        <div class="text-center mb-4">
+            <div class="brand-icon-box mx-auto mb-3" style="width: 52px; height: 52px; font-size: 1.6rem;">
+                <i class="bi bi-mortarboard-fill"></i>
+            </div>
+            <h3 class="fw-bold mb-1 text-dark">Smart Backlog Portal</h3>
+            <p class="text-muted small">B.Tech Supplementary Examination Preparation Portal</p>
+        </div>
+
+        <!-- Feedback Alerts -->
+        <div th:if="${param.error}" class="alert alert-danger py-2 small d-flex align-items-center gap-2" role="alert">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <span>Invalid username or password. Please try again.</span>
+        </div>
+        <div th:if="${param.logout}" class="alert alert-info py-2 small d-flex align-items-center gap-2" role="alert">
+            <i class="bi bi-info-circle-fill"></i>
+            <span>You have been signed out successfully.</span>
+        </div>
+        <div th:if="${param.registered}" class="alert alert-success py-2 small d-flex align-items-center gap-2" role="alert">
+            <i class="bi bi-check-circle-fill"></i>
+            <span>Registration successful! Please login with your credentials.</span>
+        </div>
+
+        <!-- Login Form -->
+        <form th:action="@{/login}" method="post">
+            <div class="mb-3">
+                <label for="username" class="form-label small fw-semibold">Username / Register No.</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-person"></i></span>
+                    <input type="text" class="form-control border-start-0 ps-0" id="username" name="username" placeholder="e.g. student_arun" required autofocus>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <label for="password" class="form-label small fw-semibold mb-0">Password</label>
+                </div>
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-lock"></i></span>
+                    <input type="password" class="form-control border-start-0 ps-0" id="password" name="password" placeholder="Enter password" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary-custom w-100 py-2 fs-6 mb-3">
+                <i class="bi bi-box-arrow-in-right me-1"></i> Sign In to Portal
+            </button>
+        </form>
+
+        <div class="text-center mb-4">
+            <span class="text-muted small">New supplementary student? </span>
+            <a th:href="@{/register}" class="fw-semibold text-primary text-decoration-none small">Register Here</a>
+        </div>
+
+        <!-- Demo Accounts Quick Click Box -->
+        <div class="border-top pt-3">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="fw-bold text-muted small text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.05em;">Quick Demo Logins (Click to Autofill)</span>
+                <span class="badge bg-primary-subtle text-primary border" style="font-size: 0.65rem;">1-Click</span>
+            </div>
+            
+            <div class="row g-2">
+                <div class="col-6">
+                    <div class="demo-account-chip" data-user="student_arun" data-pass="student123" title="Click to fill">
+                        <div>
+                            <span class="d-block fw-semibold">Student (2019)</span>
+                            <span class="text-muted" style="font-size: 0.72rem;">student_arun</span>
+                        </div>
+                        <i class="bi bi-arrow-right-short text-primary fs-5"></i>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="demo-account-chip" data-user="student_sneha" data-pass="student123" title="Click to fill">
+                        <div>
+                            <span class="d-block fw-semibold">Student (2024)</span>
+                            <span class="text-muted" style="font-size: 0.72rem;">student_sneha</span>
+                        </div>
+                        <i class="bi bi-arrow-right-short text-primary fs-5"></i>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="demo-account-chip" data-user="admin" data-pass="admin123" title="Click to fill">
+                        <div>
+                            <span class="d-block fw-semibold">Admin</span>
+                            <span class="text-muted" style="font-size: 0.72rem;">admin</span>
+                        </div>
+                        <i class="bi bi-arrow-right-short text-danger fs-5"></i>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="demo-account-chip" data-user="hod_cs" data-pass="hod123" title="Click to fill">
+                        <div>
+                            <span class="d-block fw-semibold">HOD (CSE)</span>
+                            <span class="text-muted" style="font-size: 0.72rem;">hod_cs</span>
+                        </div>
+                        <i class="bi bi-arrow-right-short text-info fs-5"></i>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="demo-account-chip" data-user="tutor_ramesh" data-pass="tutor123" title="Click to fill">
+                        <div>
+                            <span class="d-block fw-semibold">Faculty Tutor</span>
+                            <span class="text-muted" style="font-size: 0.72rem;">tutor_ramesh</span>
+                        </div>
+                        <i class="bi bi-arrow-right-short text-primary fs-5"></i>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="demo-account-chip" data-user="parent_kumar" data-pass="parent123" title="Click to fill">
+                        <div>
+                            <span class="d-block fw-semibold">Parent</span>
+                            <span class="text-muted" style="font-size: 0.72rem;">parent_kumar</span>
+                        </div>
+                        <i class="bi bi-arrow-right-short text-warning fs-5"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/main.js}"></script>
+</body>
+</html>

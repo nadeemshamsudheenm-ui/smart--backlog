@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<aside th:fragment="sidebar(activePage)" class="portal-sidebar">
+    <!-- Admin Menu -->
+    <div th:if="${currentUser != null and currentUser.role.name() == 'ROLE_ADMIN'}">
+        <div class="sidebar-heading">Admin Portal</div>
+        <a th:href="@{/admin/dashboard}" class="sidebar-nav-item" th:classappend="${activePage == 'dashboard' ? 'active' : ''}">
+            <i class="bi bi-grid-1x2-fill"></i> Dashboard
+        </a>
+        <a th:href="@{/admin/users}" class="sidebar-nav-item" th:classappend="${activePage == 'users' ? 'active' : ''}">
+            <i class="bi bi-people-fill"></i> User Accounts
+        </a>
+        <a th:href="@{/admin/subjects}" class="sidebar-nav-item" th:classappend="${activePage == 'subjects' ? 'active' : ''}">
+            <i class="bi bi-book-fill"></i> Subjects & Schemes
+        </a>
+        <a th:href="@{/admin/materials}" class="sidebar-nav-item" th:classappend="${activePage == 'materials' ? 'active' : ''}">
+            <i class="bi bi-file-earmark-pdf-fill"></i> Study Materials
+        </a>
+        <a th:href="@{/admin/papers}" class="sidebar-nav-item" th:classappend="${activePage == 'papers' ? 'active' : ''}">
+            <i class="bi bi-journal-text"></i> Previous Year Papers
+        </a>
+        <a th:href="@{/admin/questions}" class="sidebar-nav-item" th:classappend="${activePage == 'questions' ? 'active' : ''}">
+            <i class="bi bi-patch-question-fill"></i> Question Bank
+        </a>
+        <a th:href="@{/admin/notifications}" class="sidebar-nav-item" th:classappend="${activePage == 'notifications' ? 'active' : ''}">
+            <i class="bi bi-megaphone-fill"></i> Broadcast Alerts
+        </a>
+    </div>
+
+    <!-- HOD Menu -->
+    <div th:if="${currentUser != null and currentUser.role.name() == 'ROLE_HOD'}">
+        <div class="sidebar-heading">HOD Academic Monitoring</div>
+        <a th:href="@{/hod/dashboard}" class="sidebar-nav-item" th:classappend="${activePage == 'dashboard' ? 'active' : ''}">
+            <i class="bi bi-grid-1x2-fill"></i> Department Overview
+        </a>
+        <a th:href="@{/hod/students}" class="sidebar-nav-item" th:classappend="${activePage == 'students' ? 'active' : ''}">
+            <i class="bi bi-mortarboard-fill"></i> Supplementary Students
+        </a>
+        <a th:href="@{/hod/reports}" class="sidebar-nav-item" th:classappend="${activePage == 'reports' ? 'active' : ''}">
+            <i class="bi bi-bar-chart-line-fill"></i> Progress Reports
+        </a>
+        <a th:href="@{/notifications}" class="sidebar-nav-item" th:classappend="${activePage == 'notifications' ? 'active' : ''}">
+            <i class="bi bi-bell-fill"></i> Notifications
+        </a>
+    </div>
+
+    <!-- Student Menu -->
+    <div th:if="${currentUser != null and currentUser.role.name() == 'ROLE_STUDENT'}">
+        <div class="sidebar-heading">Preparation Portal</div>
+        <a th:href="@{/student/dashboard}" class="sidebar-nav-item" th:classappend="${activePage == 'dashboard' ? 'active' : ''}">
+            <i class="bi bi-speedometer2"></i> My Dashboard
+        </a>
+        <a th:href="@{/student/profile}" class="sidebar-nav-item" th:classappend="${activePage == 'profile' ? 'active' : ''}">
+            <i class="bi bi-person-badge-fill"></i> Profile & Backlogs
+        </a>
+        <a th:href="@{/student/materials}" class="sidebar-nav-item" th:classappend="${activePage == 'materials' ? 'active' : ''}">
+            <i class="bi bi-file-earmark-pdf-fill"></i> Study Materials
+        </a>
+        <a th:href="@{/student/papers}" class="sidebar-nav-item" th:classappend="${activePage == 'papers' ? 'active' : ''}">
+            <i class="bi bi-journal-check"></i> University PYQs
+        </a>
+        <a th:href="@{/student/quiz}" class="sidebar-nav-item" th:classappend="${activePage == 'quiz' ? 'active' : ''}">
+            <i class="bi bi-ui-checks"></i> Practice MCQ Quizzes
+        </a>
+        <a th:href="@{/student/quiz/history}" class="sidebar-nav-item" th:classappend="${activePage == 'quiz-history' ? 'active' : ''}">
+            <i class="bi bi-clock-history"></i> Quiz History
+        </a>
+        <a th:href="@{/student/progress}" class="sidebar-nav-item" th:classappend="${activePage == 'progress' ? 'active' : ''}">
+            <i class="bi bi-graph-up-arrow"></i> My Progress & Analytics
+        </a>
+        <a th:href="@{/notifications}" class="sidebar-nav-item" th:classappend="${activePage == 'notifications' ? 'active' : ''}">
+            <i class="bi bi-bell-fill"></i> Notifications
+        </a>
+    </div>
+
+    <!-- Parent Menu -->
+    <div th:if="${currentUser != null and currentUser.role.name() == 'ROLE_PARENT'}">
+        <div class="sidebar-heading">Parent Portal</div>
+        <a th:href="@{/parent/dashboard}" class="sidebar-nav-item" th:classappend="${activePage == 'dashboard' ? 'active' : ''}">
+            <i class="bi bi-person-heart"></i> Ward Overview
+        </a>
+        <a th:href="@{/parent/ward-progress}" class="sidebar-nav-item" th:classappend="${activePage == 'progress' ? 'active' : ''}">
+            <i class="bi bi-graph-up"></i> Academic Progress
+        </a>
+        <a th:href="@{/notifications}" class="sidebar-nav-item" th:classappend="${activePage == 'notifications' ? 'active' : ''}">
+            <i class="bi bi-bell-fill"></i> Notifications
+        </a>
+    </div>
+
+    <!-- Tutor Menu -->
+    <div th:if="${currentUser != null and currentUser.role.name() == 'ROLE_TUTOR'}">
+        <div class="sidebar-heading">Faculty Advisor Portal</div>
+        <a th:href="@{/tutor/dashboard}" class="sidebar-nav-item" th:classappend="${activePage == 'dashboard' ? 'active' : ''}">
+            <i class="bi bi-grid-1x2-fill"></i> Advisor Dashboard
+        </a>
+        <a th:href="@{/tutor/students}" class="sidebar-nav-item" th:classappend="${activePage == 'students' ? 'active' : ''}">
+            <i class="bi bi-people-fill"></i> Assigned Students
+        </a>
+        <a th:href="@{/tutor/materials}" class="sidebar-nav-item" th:classappend="${activePage == 'materials' ? 'active' : ''}">
+            <i class="bi bi-file-earmark-plus-fill"></i> Upload Study Notes
+        </a>
+        <a th:href="@{/tutor/questions}" class="sidebar-nav-item" th:classappend="${activePage == 'questions' ? 'active' : ''}">
+            <i class="bi bi-patch-question-fill"></i> Contribute Questions
+        </a>
+        <a th:href="@{/notifications}" class="sidebar-nav-item" th:classappend="${activePage == 'notifications' ? 'active' : ''}">
+            <i class="bi bi-bell-fill"></i> Notifications
+        </a>
+    </div>
+</aside>
+</html>

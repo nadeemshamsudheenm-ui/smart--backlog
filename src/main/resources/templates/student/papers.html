@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header('Previous Year Question Papers')}"></head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="dashboard-layout">
+    <aside th:replace="~{fragments/sidebar :: sidebar('papers')}"></aside>
+
+    <main class="main-content">
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+            <div>
+                <h3 class="fw-bold mb-1 text-dark">University Previous Year Papers (PYQs)</h3>
+                <p class="text-muted small mb-0">Original supplementary & regular examination papers to understand question patterns</p>
+            </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="content-card mb-4">
+            <div class="content-card-body py-3">
+                <form th:action="@{/student/papers}" method="get" class="row g-2 align-items-center">
+                    <div class="col-md-4">
+                        <select name="subjectId" class="form-select form-select-sm">
+                            <option value="">-- All Supplementary Subjects --</option>
+                            <option th:each="s : ${subjects}" 
+                                    th:value="${s.id}" 
+                                    th:text="${s.code} + ' - ' + ${s.name} + ' (' + ${s.scheme.name} + ')'"
+                                    th:selected="${selectedSubjectId != null and selectedSubjectId == s.id}">CST201</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select name="schemeId" class="form-select form-select-sm">
+                            <option value="">-- All Schemes --</option>
+                            <option th:each="sch : ${schemes}" th:value="${sch.id}" th:text="${sch.name}">2019 Scheme</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select name="semesterId" class="form-select form-select-sm">
+                            <option value="">-- All Semesters --</option>
+                            <option th:each="sem : ${semesters}" th:value="${sem.id}" th:text="${sem.name}">Semester 3</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary btn-sm flex-fill">
+                            <i class="bi bi-funnel-fill me-1"></i> Filter
+                        </button>
+                        <a th:href="@{/student/papers}" class="btn btn-outline-secondary btn-sm" title="Reset">
+                            <i class="bi bi-arrow-counterclockwise"></i>
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Papers Grid -->
+        <div class="row g-3">
+            <div class="col-md-6 col-lg-4" th:each="paper : ${papers}">
+                <div class="content-card h-100 d-flex flex-column justify-content-between mb-0">
+                    <div class="content-card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge badge-scheme" th:text="${paper.scheme.name}">2019 Scheme</span>
+                            <span class="badge badge-semester" th:text="${paper.semester.code}">S3</span>
+                        </div>
+                        <h6 class="fw-bold text-dark mb-1" th:text="${paper.title}">CST201 Supplementary Exam Dec 2023</h6>
+                        <span class="text-primary fw-semibold small d-block mb-2" th:text="${paper.subject.code} + ' - ' + ${paper.subject.name}">CST201</span>
+
+                        <div class="p-2 bg-light rounded text-muted small mb-2" style="font-size: 0.8rem;">
+                            <i class="bi bi-calendar3 me-1"></i> <strong>Exam Session:</strong> <span th:text="${paper.examSession}">December 2023</span>
+                        </div>
+
+                        <div th:if="${paper.examPatternNotes != null and !paper.examPatternNotes.isBlank()}" class="p-2 bg-light rounded text-muted small mb-3" style="font-size: 0.8rem;">
+                            <i class="bi bi-list-check me-1"></i> <strong>Format:</strong> <span th:text="${paper.examPatternNotes}">Pattern notes</span>
+                        </div>
+                    </div>
+                    <div class="p-3 bg-light border-top d-flex align-items-center justify-content-between">
+                        <small class="text-muted">
+                            <i class="bi bi-file-earmark-pdf text-danger me-1"></i>
+                            <span th:text="${paper.formattedFileSize}">1.4 MB</span>
+                            <span class="ms-2"><i class="bi bi-download"></i> <span th:text="${paper.downloadCount}">8</span></span>
+                        </small>
+                        <div class="d-flex gap-2">
+                            <a th:href="@{/view/paper/{id}(id=${paper.id})}" target="_blank" class="btn btn-sm btn-outline-secondary">
+                                <i class="bi bi-eye"></i> View
+                            </a>
+                            <a th:href="@{/download/paper/{id}(id=${paper.id})}" class="btn btn-sm btn-primary-custom">
+                                <i class="bi bi-download"></i> PDF
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div th:if="${papers == null or papers.isEmpty()}" class="col-12">
+                <div class="text-center py-5 bg-white rounded border">
+                    <i class="bi bi-file-earmark-x text-muted fs-1 d-block mb-2"></i>
+                    <h6 class="fw-bold text-dark">No question papers found</h6>
+                    <p class="text-muted small">Adjust your filters or contact your tutor to upload specific exam papers.</p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

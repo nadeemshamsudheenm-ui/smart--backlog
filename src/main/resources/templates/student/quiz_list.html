@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header('Practice Quiz Center')}"></head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="dashboard-layout">
+    <aside th:replace="~{fragments/sidebar :: sidebar('quiz')}"></aside>
+
+    <main class="main-content">
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+            <div>
+                <h3 class="fw-bold mb-1 text-dark">Interactive Practice MCQ Quizzes</h3>
+                <p class="text-muted small mb-0">Solve previous university questions under timed conditions with instant score feedback</p>
+            </div>
+            <a th:href="@{/student/quiz/history}" class="btn btn-outline-primary btn-sm">
+                <i class="bi bi-clock-history me-1"></i> View Past Attempts
+            </a>
+        </div>
+
+        <div th:if="${errorMessage}" class="alert alert-warning py-2 small d-flex align-items-center gap-2 mb-4">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <span th:text="${errorMessage}">Error message</span>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-6 col-lg-4" th:each="sub : ${allSubjects}">
+                <div class="content-card h-100 d-flex flex-column justify-content-between mb-0">
+                    <div class="content-card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge badge-scheme" th:text="${sub.scheme.name}">2019 Scheme</span>
+                            <span th:if="${student.supplementarySubjects != null and student.supplementarySubjects.contains(sub)}" 
+                                  class="badge badge-backlog">
+                                <i class="bi bi-exclamation-circle-fill"></i> Your Backlog
+                            </span>
+                        </div>
+                        <h5 class="fw-bold text-dark mb-1" th:text="${sub.name}">Data Structures</h5>
+                        <span class="text-primary fw-semibold small d-block mb-3" th:text="${sub.code} + ' (' + ${sub.semester.code} + ')'">CST201 (S3)</span>
+                        <p class="text-muted small mb-3" th:text="${sub.description != null ? sub.description : 'University syllabus practice questions.'}"></p>
+
+                        <div class="p-2 bg-light rounded d-flex align-items-center justify-content-between text-muted small">
+                            <span><i class="bi bi-patch-question text-primary me-1"></i> Question Bank:</span>
+                            <strong class="text-dark" th:text="${questionCounts.get(sub.id) != null ? questionCounts.get(sub.id) + ' MCQs' : '0 MCQs'}">6 MCQs</strong>
+                        </div>
+                    </div>
+                    <div class="p-3 bg-light border-top">
+                        <a th:if="${questionCounts.get(sub.id) != null and questionCounts.get(sub.id) > 0}"
+                           th:href="@{/student/quiz/start/{id}(id=${sub.id})}" 
+                           class="btn btn-primary-custom w-100">
+                            <i class="bi bi-play-circle-fill me-1"></i> Start Practice Quiz
+                        </a>
+                        <button th:unless="${questionCounts.get(sub.id) != null and questionCounts.get(sub.id) > 0}"
+                                class="btn btn-secondary w-100 disabled" disabled>
+                            Questions Under Review
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

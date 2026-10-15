@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header('Admin Dashboard')}"></head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="dashboard-layout">
+    <aside th:replace="~{fragments/sidebar :: sidebar('dashboard')}"></aside>
+
+    <main class="main-content">
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+            <div>
+                <h3 class="fw-bold mb-1 text-dark">Portal Administration Console</h3>
+                <p class="text-muted small mb-0">System-wide monitoring, academic data classification, materials, and question bank management</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a th:href="@{/admin/users}" class="btn btn-primary-custom btn-sm">
+                    <i class="bi bi-person-plus-fill me-1"></i> Manage Users
+                </a>
+                <a th:href="@{/admin/notifications}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-megaphone-fill me-1"></i> Broadcast Alert
+                </a>
+            </div>
+        </div>
+
+        <!-- Stat Cards Grid -->
+        <div class="row g-3 mb-4">
+            <div class="col-sm-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-primary">
+                        <i class="bi bi-mortarboard-fill"></i>
+                    </div>
+                    <div class="stat-value" th:text="${totalStudents}">3</div>
+                    <div class="stat-label">Supplementary Students</div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-danger">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                    </div>
+                    <div class="stat-value" th:text="${totalBacklogs}">7</div>
+                    <div class="stat-label">Active Backlogs Tracked</div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-success">
+                        <i class="bi bi-book-half"></i>
+                    </div>
+                    <div class="stat-value" th:text="${totalSubjects}">12</div>
+                    <div class="stat-label">Academic Subjects</div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-secondary">
+                        <i class="bi bi-ui-checks"></i>
+                    </div>
+                    <div class="stat-value" th:text="${totalQuizAttempts}">4</div>
+                    <div class="stat-label">Quiz Attempts Taken</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Second Row of Stats -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3">
+                <div class="p-3 bg-white rounded border d-flex align-items-center justify-content-between">
+                    <div>
+                        <span class="text-muted small d-block">Study Materials</span>
+                        <strong class="fs-5 text-dark" th:text="${totalMaterials}">4</strong>
+                    </div>
+                    <a th:href="@{/admin/materials}" class="btn btn-sm btn-light border"><i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="p-3 bg-white rounded border d-flex align-items-center justify-content-between">
+                    <div>
+                        <span class="text-muted small d-block">PYQ Papers</span>
+                        <strong class="fs-5 text-dark" th:text="${totalPapers}">3</strong>
+                    </div>
+                    <a th:href="@{/admin/papers}" class="btn btn-sm btn-light border"><i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="p-3 bg-white rounded border d-flex align-items-center justify-content-between">
+                    <div>
+                        <span class="text-muted small d-block">Question Bank</span>
+                        <strong class="fs-5 text-dark" th:text="${totalQuestions}">14</strong>
+                    </div>
+                    <a th:href="@{/admin/questions}" class="btn btn-sm btn-light border"><i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="p-3 bg-white rounded border d-flex align-items-center justify-content-between">
+                    <div>
+                        <span class="text-muted small d-block">Faculty Tutors</span>
+                        <strong class="fs-5 text-dark" th:text="${totalTutors}">2</strong>
+                    </div>
+                    <a th:href="@{/admin/users(role='ROLE_TUTOR')}" class="btn btn-sm btn-light border"><i class="bi bi-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tables Row -->
+        <div class="row g-4">
+            <!-- Registered Students Table -->
+            <div class="col-lg-7">
+                <div class="content-card h-100 mb-0">
+                    <div class="content-card-header">
+                        <h5 class="content-card-title">
+                            <i class="bi bi-people-fill text-primary"></i> Tracked Supplementary Students
+                        </h5>
+                        <a th:href="@{/admin/users(role='ROLE_STUDENT')}" class="btn btn-sm btn-link text-decoration-none">View All</a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Register No</th>
+                                    <th>Student Name</th>
+                                    <th>Scheme</th>
+                                    <th>Semester</th>
+                                    <th>Backlogs</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="st : ${recentStudents}">
+                                    <td><strong th:text="${st.registerNumber}">TVE21CS042</strong></td>
+                                    <td th:text="${st.user.fullName}">Arun Suresh</td>
+                                    <td><span class="badge badge-scheme" th:text="${st.scheme != null ? st.scheme.name : 'N/A'}">2019 Scheme</span></td>
+                                    <td><span class="badge badge-semester" th:text="${st.currentSemester != null ? st.currentSemester.code : 'N/A'}">S5</span></td>
+                                    <td>
+                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle fw-semibold" th:text="${st.backlogCount} + ' subjects'">3 subjects</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Quiz Submissions -->
+            <div class="col-lg-5">
+                <div class="content-card h-100 mb-0">
+                    <div class="content-card-header">
+                        <h5 class="content-card-title">
+                            <i class="bi bi-clock-history text-secondary"></i> System Quiz Activity
+                        </h5>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Subject</th>
+                                    <th>Score</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="qa : ${recentAttempts}">
+                                    <td>
+                                        <strong class="d-block" th:text="${qa.student.user.fullName}">Arun Suresh</strong>
+                                        <small class="text-muted" th:text="${qa.student.registerNumber}">TVE21CS042</small>
+                                    </td>
+                                    <td>
+                                        <span th:text="${qa.subject.code}">CST201</span>
+                                    </td>
+                                    <td>
+                                        <span class="fw-bold" th:text="${qa.scorePercentage} + '%'">83.3%</span>
+                                        <span th:if="${qa.passed}" class="badge bg-success-subtle text-success ms-1">Passed</span>
+                                        <span th:unless="${qa.passed}" class="badge bg-danger-subtle text-danger ms-1">Fail</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

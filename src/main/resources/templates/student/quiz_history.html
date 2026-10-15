@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header('Practice Quiz History')}"></head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="dashboard-layout">
+    <aside th:replace="~{fragments/sidebar :: sidebar('quiz-history')}"></aside>
+
+    <main class="main-content">
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+            <div>
+                <h3 class="fw-bold mb-1 text-dark">Practice Test History & Records</h3>
+                <p class="text-muted small mb-0">Track all your previous MCQ attempts, evaluate progress, and review mistakes</p>
+            </div>
+            <a th:href="@{/student/quiz}" class="btn btn-primary-custom btn-sm">
+                <i class="bi bi-play-circle-fill me-1"></i> Take New Practice Quiz
+            </a>
+        </div>
+
+        <div class="content-card">
+            <div class="table-responsive">
+                <table class="table custom-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Subject</th>
+                            <th>Attempted On</th>
+                            <th>Score</th>
+                            <th>Percentage</th>
+                            <th>Time Spent</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="a, iterStat : ${attempts}">
+                            <td class="text-muted small" th:text="${iterStat.count}">1</td>
+                            <td>
+                                <strong th:text="${a.subject.code}">CST201</strong> - 
+                                <span th:text="${a.subject.name}">Data Structures</span>
+                            </td>
+                            <td class="text-muted small" th:text="${#temporals.format(a.attemptedAt, 'dd MMM yyyy, hh:mm a')}">15 Oct 2026</td>
+                            <td>
+                                <strong th:text="${a.correctAnswers}">5</strong> / <span th:text="${a.totalQuestions}">6</span>
+                            </td>
+                            <td>
+                                <span class="fw-bold" th:text="${a.scorePercentage} + '%'">83.3%</span>
+                            </td>
+                            <td class="text-muted small" th:text="${a.formattedDuration}">07:00</td>
+                            <td>
+                                <span th:if="${a.passed}" class="badge bg-success-subtle text-success border border-success-subtle">
+                                    <i class="bi bi-check2"></i> Passed
+                                </span>
+                                <span th:unless="${a.passed}" class="badge bg-danger-subtle text-danger border border-danger-subtle">
+                                    <i class="bi bi-x"></i> Needs Revision
+                                </span>
+                            </td>
+                            <td>
+                                <a th:href="@{/student/quiz/result/{id}(id=${a.id})}" class="btn btn-sm btn-outline-primary py-0 px-2">
+                                    Review
+                                </a>
+                            </td>
+                        </tr>
+                        <tr th:if="${attempts == null or attempts.isEmpty()}">
+                            <td colspan="8" class="text-center py-5 text-muted">
+                                <i class="bi bi-journal-x fs-1 d-block mb-2"></i>
+                                No practice test history found.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

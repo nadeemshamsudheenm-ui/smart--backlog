@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header('My Academic Progress & Analytics')}"></head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="dashboard-layout">
+    <aside th:replace="~{fragments/sidebar :: sidebar('progress')}"></aside>
+
+    <main class="main-content">
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+            <div>
+                <h3 class="fw-bold mb-1 text-dark">Supplementary Progress & Performance Analytics</h3>
+                <p class="text-muted small mb-0">Visual performance trends, subject-wise mastery, and weak area analysis</p>
+            </div>
+            <a th:href="@{/student/quiz}" class="btn btn-primary-custom btn-sm">
+                <i class="bi bi-play-circle-fill me-1"></i> Take Another Practice Quiz
+            </a>
+        </div>
+
+        <!-- Metric Widgets -->
+        <div class="row g-3 mb-4">
+            <div class="col-sm-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-primary">
+                        <i class="bi bi-bullseye"></i>
+                    </div>
+                    <div class="stat-value" th:text="${report.averageScore} + '%'">72.2%</div>
+                    <div class="stat-label">Average Practice Score</div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-success">
+                        <i class="bi bi-trophy-fill"></i>
+                    </div>
+                    <div class="stat-value" th:text="${report.highestScore} + '%'">100%</div>
+                    <div class="stat-label">Highest Score Achieved</div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-secondary">
+                        <i class="bi bi-check-circle-fill"></i>
+                    </div>
+                    <div class="stat-value" th:text="${report.passedAttempts} + '/' + ${report.totalAttempts}">2/3</div>
+                    <div class="stat-label">Tests Passed (>= 50%)</div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-warning">
+                        <i class="bi bi-graph-up"></i>
+                    </div>
+                    <div class="stat-value" th:text="${report.passRate} + '%'">66.7%</div>
+                    <div class="stat-label">Pass Percentage</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="row g-4 mb-4">
+            <!-- Score Timeline Line Chart -->
+            <div class="col-lg-7">
+                <div class="content-card h-100 mb-0">
+                    <div class="content-card-header">
+                        <h5 class="content-card-title">
+                            <i class="bi bi-graph-up-arrow text-primary"></i> Score Improvement Timeline
+                        </h5>
+                    </div>
+                    <div class="content-card-body">
+                        <canvas id="timelineChart" style="min-height: 280px;"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subject Performance Bar Chart -->
+            <div class="col-lg-5">
+                <div class="content-card h-100 mb-0">
+                    <div class="content-card-header">
+                        <h5 class="content-card-title">
+                            <i class="bi bi-bar-chart-fill text-info"></i> Subject-Wise Mastery
+                        </h5>
+                    </div>
+                    <div class="content-card-body">
+                        <canvas id="subjectBarChart" style="min-height: 280px;"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Weak vs Strong Analysis Row -->
+        <div class="row g-4">
+            <!-- Weak Subjects Focus -->
+            <div class="col-md-6">
+                <div class="content-card border-warning mb-0">
+                    <div class="content-card-header bg-warning-subtle">
+                        <h5 class="content-card-title text-warning-emphasis">
+                            <i class="bi bi-exclamation-triangle-fill text-warning"></i> Weak Subjects (Need Revision)
+                        </h5>
+                    </div>
+                    <div class="content-card-body">
+                        <div th:if="${report.weakSubjects != null and !report.weakSubjects.isEmpty()}">
+                            <p class="small text-muted mb-3">You scored below 50% in the following subjects. Focus on these to guarantee clearance in the upcoming exam:</p>
+                            <ul class="list-group list-group-flush mb-3">
+                                <li class="list-group-item d-flex align-items-center justify-content-between px-0" th:each="w : ${report.weakSubjects}">
+                                    <span class="text-danger fw-semibold"><i class="bi bi-arrow-right-circle me-1"></i> <span th:text="${w}">MAT101 (33.3%)</span></span>
+                                    <a th:href="@{/student/materials}" class="btn btn-outline-danger btn-sm py-0 px-2">Revise Notes</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div th:if="${report.weakSubjects == null or report.weakSubjects.isEmpty()}" class="text-center py-4 text-muted">
+                            <i class="bi bi-emoji-smile-fill text-success fs-1 d-block mb-1"></i>
+                            <span class="small">Great work! No weak subjects currently identified (&lt; 50%).</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Strong Subjects -->
+            <div class="col-md-6">
+                <div class="content-card border-success mb-0">
+                    <div class="content-card-header bg-success-subtle">
+                        <h5 class="content-card-title text-success-emphasis">
+                            <i class="bi bi-shield-check text-success"></i> Strong Subjects (>= 70%)
+                        </h5>
+                    </div>
+                    <div class="content-card-body">
+                        <div th:if="${report.strongSubjects != null and !report.strongSubjects.isEmpty()}">
+                            <p class="small text-muted mb-3">You have demonstrated high proficiency in:</p>
+                            <ul class="list-group list-group-flush mb-3">
+                                <li class="list-group-item d-flex align-items-center justify-content-between px-0" th:each="s : ${report.strongSubjects}">
+                                    <span class="text-success fw-semibold"><i class="bi bi-check-circle-fill me-1"></i> <span th:text="${s}">CST204 (100.0%)</span></span>
+                                    <span class="badge bg-success-subtle text-success">Exam Ready</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div th:if="${report.strongSubjects == null or report.strongSubjects.isEmpty()}" class="text-center py-4 text-muted">
+                            <span class="small">Attempt more tests to establish high-score mastery badges.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<!-- Chart.js Initializer -->
+<script th:inline="javascript">
+/*<![CDATA[*/
+    const timelineLabels = /*[[${report.attemptDates}]]*/ ['10 Oct', '13 Oct', '15 Oct'];
+    const timelineScores = /*[[${report.attemptScores}]]*/ [83.3, 33.3, 100.0];
+    const subjectMap = /*[[${report.subjectAverageScores}]]*/ {};
+
+    // 1. Timeline Chart
+    const ctxTimeline = document.getElementById('timelineChart');
+    if (ctxTimeline) {
+        new Chart(ctxTimeline, {
+            type: 'line',
+            data: {
+                labels: timelineLabels.length ? timelineLabels : ['No attempts yet'],
+                datasets: [{
+                    label: 'Quiz Score (%)',
+                    data: timelineScores.length ? timelineScores : [0],
+                    borderColor: '#4f46e5',
+                    backgroundColor: 'rgba(79, 70, 229, 0.12)',
+                    fill: true,
+                    tension: 0.35,
+                    borderWidth: 3,
+                    pointBackgroundColor: '#4f46e5',
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        min: 0,
+                        max: 100,
+                        ticks: { callback: v => v + '%' }
+                    }
+                }
+            }
+        });
+    }
+
+    // 2. Subject Bar Chart
+    const ctxBar = document.getElementById('subjectBarChart');
+    if (ctxBar) {
+        const subLabels = Object.keys(subjectMap);
+        const subValues = Object.values(subjectMap);
+        new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: subLabels.length ? subLabels : ['No data'],
+                datasets: [{
+                    label: 'Average Score (%)',
+                    data: subValues.length ? subValues : [0],
+                    backgroundColor: subValues.map(v => v >= 50 ? '#10b981' : '#ef4444'),
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        min: 0,
+                        max: 100,
+                        ticks: { callback: v => v + '%' }
+                    }
+                }
+            }
+        });
+    }
+/*]]>*/
+</script>
+</body>
+</html>

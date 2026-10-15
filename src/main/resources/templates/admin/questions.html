@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header('Question Bank Management')}"></head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="dashboard-layout">
+    <aside th:replace="~{fragments/sidebar :: sidebar('questions')}"></aside>
+
+    <main class="main-content">
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+            <div>
+                <h3 class="fw-bold mb-1 text-dark">University MCQ Question Bank</h3>
+                <p class="text-muted small mb-0">Create, edit, and organize practice questions based on previous university papers</p>
+            </div>
+            <a th:href="@{/admin/questions/create}" class="btn btn-primary-custom btn-sm">
+                <i class="bi bi-plus-circle me-1"></i> Add New Question
+            </a>
+        </div>
+
+        <div th:if="${successMessage}" class="alert alert-success py-2 small d-flex align-items-center gap-2 mb-3">
+            <i class="bi bi-check-circle-fill"></i>
+            <span th:text="${successMessage}">Success message</span>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger py-2 small d-flex align-items-center gap-2 mb-3">
+            <i class="bi bi-exclamation-octagon-fill"></i>
+            <span th:text="${errorMessage}">Error message</span>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="content-card mb-4">
+            <div class="content-card-body py-3">
+                <form th:action="@{/admin/questions}" method="get" class="row g-2 align-items-center">
+                    <div class="col-md-9">
+                        <select name="subjectId" class="form-select form-select-sm">
+                            <option value="">-- All Subjects Question Bank --</option>
+                            <option th:each="s : ${subjects}" 
+                                    th:value="${s.id}" 
+                                    th:text="${s.code} + ' - ' + ${s.name} + ' (' + ${s.scheme.name} + ')'"
+                                    th:selected="${selectedSubjectId != null and selectedSubjectId == s.id}">CST201</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 d-flex gap-2">
+                        <button type="submit" class="btn btn-primary btn-sm flex-fill">Filter Questions</button>
+                        <a th:href="@{/admin/questions}" class="btn btn-outline-secondary btn-sm">Reset</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Questions List Table -->
+        <div class="content-card">
+            <div class="table-responsive">
+                <table class="table custom-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 5%;">#</th>
+                            <th style="width: 15%;">Subject</th>
+                            <th style="width: 45%;">Question & Answer Options</th>
+                            <th style="width: 10%;">Correct</th>
+                            <th style="width: 10%;">Difficulty</th>
+                            <th style="width: 15%;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="q, iter : ${questions}">
+                            <td class="text-muted small" th:text="${iter.count}">1</td>
+                            <td>
+                                <strong class="text-primary d-block" th:text="${q.subject.code}">CST201</strong>
+                                <small class="text-muted" th:text="${q.subject.name}">Data Structures</small>
+                            </td>
+                            <td>
+                                <p class="fw-semibold text-dark mb-2" th:text="${q.questionText}">Question text</p>
+                                <div class="row g-1 small text-muted">
+                                    <div class="col-6"><strong>A:</strong> <span th:text="${q.optionA}">Option A</span></div>
+                                    <div class="col-6"><strong>B:</strong> <span th:text="${q.optionB}">Option B</span></div>
+                                    <div class="col-6"><strong>C:</strong> <span th:text="${q.optionC}">Option C</span></div>
+                                    <div class="col-6"><strong>D:</strong> <span th:text="${q.optionD}">Option D</span></div>
+                                </div>
+                                <div th:if="${q.sourceExam != null and !q.sourceExam.isBlank()}" class="mt-2">
+                                    <span class="badge bg-light text-secondary border small" th:text="${q.sourceExam}">KTU Dec 2023</span>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-success fs-6 px-2 py-1" th:text="'Option ' + ${q.correctOption}">Option B</span>
+                            </td>
+                            <td>
+                                <span class="badge"
+                                      th:classappend="${q.difficultyLevel == 'EASY' ? 'bg-success-subtle text-success' : (q.difficultyLevel == 'HARD' ? 'bg-danger-subtle text-danger' : 'bg-warning-subtle text-warning')}"
+                                      th:text="${q.difficultyLevel}">MEDIUM</span>
+                            </td>
+                            <td>
+                                <div class="d-flex gap-1">
+                                    <a th:href="@{/admin/questions/edit/{id}(id=${q.id})}" class="btn btn-sm btn-outline-secondary py-0 px-2">
+                                        Edit
+                                    </a>
+                                    <form th:action="@{/admin/questions/delete/{id}(id=${q.id})}" method="post" class="d-inline"
+                                          onsubmit="return confirm('Delete this question from question bank?');">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger py-0 px-2">
+                                            Delete
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr th:if="${questions == null or questions.isEmpty()}">
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                No questions found in this category. Click <strong>Add New Question</strong> above.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

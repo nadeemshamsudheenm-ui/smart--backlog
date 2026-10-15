@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header('HOD Department Overview')}"></head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="dashboard-layout">
+    <aside th:replace="~{fragments/sidebar :: sidebar('dashboard')}"></aside>
+
+    <main class="main-content">
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+            <div>
+                <h3 class="fw-bold mb-1 text-dark">HOD Academic Monitoring Dashboard</h3>
+                <p class="text-muted small mb-0">Department of Computer Science &amp; Engineering &bull; Supplementary Preparation Progress</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a th:href="@{/hod/students}" class="btn btn-primary-custom btn-sm">
+                    <i class="bi bi-people-fill me-1"></i> Supplementary Students
+                </a>
+                <a th:href="@{/hod/reports}" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-bar-chart-fill me-1"></i> Department Reports
+                </a>
+            </div>
+        </div>
+
+        <!-- Metrics Row -->
+        <div class="row g-3 mb-4">
+            <div class="col-sm-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-primary">
+                        <i class="bi bi-mortarboard-fill"></i>
+                    </div>
+                    <div class="stat-value" th:text="${departmentReport.totalStudents}">3</div>
+                    <div class="stat-label">Supplementary Students</div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-danger">
+                        <i class="bi bi-exclamation-diamond-fill"></i>
+                    </div>
+                    <div class="stat-value" th:text="${departmentReport.totalBacklogs}">7</div>
+                    <div class="stat-label">Total Backlog Papers</div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-secondary">
+                        <i class="bi bi-ui-checks"></i>
+                    </div>
+                    <div class="stat-value" th:text="${departmentReport.totalQuizzesAttempted}">4</div>
+                    <div class="stat-label">Practice Tests Taken</div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-xl-3">
+                <div class="stat-card">
+                    <div class="stat-icon stat-icon-success">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+                    <div class="stat-value" th:text="${departmentReport.overallPassRate} + '%'">75.0%</div>
+                    <div class="stat-label">Department Mock Pass Rate</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Students Roster -->
+            <div class="col-lg-7">
+                <div class="content-card h-100 mb-0">
+                    <div class="content-card-header">
+                        <h5 class="content-card-title">
+                            <i class="bi bi-person-lines-fill text-primary"></i> Supplementary Students Roster
+                        </h5>
+                        <a th:href="@{/hod/students}" class="btn btn-sm btn-link text-decoration-none">Full Directory</a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Register No</th>
+                                    <th>Student</th>
+                                    <th>Scheme</th>
+                                    <th>Semester</th>
+                                    <th>Backlogs</th>
+                                    <th>Advisor</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="st : ${students}">
+                                    <td><strong th:text="${st.registerNumber}">TVE21CS042</strong></td>
+                                    <td th:text="${st.user.fullName}">Arun Suresh</td>
+                                    <td><span class="badge badge-scheme" th:text="${st.scheme != null ? st.scheme.name : 'N/A'}">2019 Scheme</span></td>
+                                    <td><span class="badge badge-semester" th:text="${st.currentSemester != null ? st.currentSemester.code : 'N/A'}">S5</span></td>
+                                    <td>
+                                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle fw-semibold" th:text="${st.backlogCount}">3</span>
+                                    </td>
+                                    <td class="small text-muted" th:text="${st.assignedTutor != null ? st.assignedTutor.fullName : 'Unassigned'}">Prof. Ramesh Menon</td>
+                                    <td>
+                                        <a th:href="@{/hod/students/{id}(id=${st.id})}" class="btn btn-sm btn-outline-primary py-0 px-2">
+                                            Monitor
+                                        </a>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Faculty Advisors List -->
+            <div class="col-lg-5">
+                <div class="content-card h-100 mb-0">
+                    <div class="content-card-header">
+                        <h5 class="content-card-title">
+                            <i class="bi bi-person-badge-fill text-info"></i> Department Faculty Advisors
+                        </h5>
+                    </div>
+                    <div class="content-card-body p-0">
+                        <div class="list-group list-group-flush">
+                            <div class="list-group-item p-3" th:each="t : ${tutors}">
+                                <div class="d-flex align-items-center justify-content-between mb-1">
+                                    <strong class="text-dark" th:text="${t.fullName}">Prof. Ramesh Menon</strong>
+                                    <span class="badge bg-primary-subtle text-primary">Tutor</span>
+                                </div>
+                                <span class="text-muted small d-block mb-1" th:text="${t.email}">ramesh@smartbacklog.edu</span>
+                                <span class="text-muted small" th:text="${t.phone}">+91 9447303030</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

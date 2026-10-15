@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: header('Broadcast Alerts & Notifications')}"></head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="dashboard-layout">
+    <aside th:replace="~{fragments/sidebar :: sidebar('notifications')}"></aside>
+
+    <main class="main-content">
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+            <div>
+                <h3 class="fw-bold mb-1 text-dark">Broadcast Alerts & Notifications</h3>
+                <p class="text-muted small mb-0">Send urgent examination notices, supplementary timetables, and resource updates</p>
+            </div>
+        </div>
+
+        <div th:if="${successMessage}" class="alert alert-success py-2 small d-flex align-items-center gap-2 mb-3">
+            <i class="bi bi-check-circle-fill"></i>
+            <span th:text="${successMessage}">Success message</span>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger py-2 small d-flex align-items-center gap-2 mb-3">
+            <i class="bi bi-exclamation-octagon-fill"></i>
+            <span th:text="${errorMessage}">Error message</span>
+        </div>
+
+        <div class="row g-4">
+            <!-- Composer Column -->
+            <div class="col-lg-5">
+                <div class="content-card">
+                    <div class="content-card-header">
+                        <h5 class="content-card-title">
+                            <i class="bi bi-send-fill text-primary"></i> Compose Notification
+                        </h5>
+                    </div>
+                    <div class="content-card-body">
+                        <form th:action="@{/admin/notifications/send}" method="post">
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Target Audience *</label>
+                                <select class="form-select" name="targetRole">
+                                    <option value="">Everyone (All Users)</option>
+                                    <option th:each="r : ${roles}" th:value="${r}" th:text="'All ' + ${r.displayName} + 's'">All Students</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Or Specific Recipient User</label>
+                                <select class="form-select" name="recipientId">
+                                    <option value="">-- No specific recipient (Role broadcast) --</option>
+                                    <option th:each="u : ${users}" th:value="${u.id}" th:text="${u.fullName} + ' (' + ${u.username} + ')'">Arun Suresh</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Notice Type</label>
+                                <select class="form-select" name="type">
+                                    <option value="EXAM_ALERT">EXAM_ALERT (University Schedule / Deadlines)</option>
+                                    <option value="ANNOUNCEMENT" selected>ANNOUNCEMENT (General Academic Update)</option>
+                                    <option value="MATERIAL_UPLOAD">MATERIAL_UPLOAD (Study Resource Notification)</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Subject / Title *</label>
+                                <input type="text" class="form-control" name="title" placeholder="e.g. Supplementary Exam Hall Tickets Available" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Message Body *</label>
+                                <textarea class="form-control" name="message" rows="4" placeholder="Enter notification message details..." required></textarea>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label small fw-semibold">Target Action URL (Optional)</label>
+                                <input type="text" class="form-control" name="linkUrl" placeholder="/student/materials">
+                            </div>
+
+                            <button type="submit" class="btn btn-primary-custom w-100 py-2">
+                                <i class="bi bi-send-fill me-1"></i> Send Broadcast Notice
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sent Notifications History Column -->
+            <div class="col-lg-7">
+                <div class="content-card">
+                    <div class="content-card-header">
+                        <h5 class="content-card-title">
+                            <i class="bi bi-clock-history text-secondary"></i> Recently Sent System Alerts
+                        </h5>
+                    </div>
+                    <div class="content-card-body p-0">
+                        <div class="list-group list-group-flush">
+                            <div class="list-group-item p-3" th:each="n : ${notifications}">
+                                <div class="d-flex align-items-center justify-content-between mb-1">
+                                    <span class="badge"
+                                          th:classappend="${n.type == 'EXAM_ALERT' ? 'bg-danger-subtle text-danger' : (n.type == 'QUIZ_RESULT' ? 'bg-success-subtle text-success' : 'bg-primary-subtle text-primary')}"
+                                          th:text="${n.type}">EXAM_ALERT</span>
+                                    <small class="text-muted" th:text="${#temporals.format(n.createdAt, 'dd MMM yyyy, hh:mm a')}">15 Oct 2026</small>
+                                </div>
+                                <h6 class="fw-bold text-dark mb-1" th:text="${n.title}">Notification Title</h6>
+                                <p class="text-muted small mb-1" th:text="${n.message}">Notification message</p>
+                                <div class="d-flex align-items-center gap-2 small text-muted">
+                                    <span>Target:</span>
+                                    <strong th:text="${n.targetRole != null ? n.targetRole.displayName : (n.recipient != null ? n.recipient.fullName : 'All Portal Users')}">All Students</strong>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>
